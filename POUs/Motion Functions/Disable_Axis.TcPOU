@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <POU Name="Disable_Axis" Id="{0eef292d-6f9c-47bf-b4ee-8643e75fdfd3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION Disable_Axis : INT
+
+VAR_INPUT
+
+END_VAR
+
+VAR_IN_OUT
+	Axis: Motion_Axis;
+END_VAR
+
+VAR
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[Axis.IN_Enable_Control:= 0;
+Axis.OL_IN_Analog:= 0;
+Axis.CL_IN_Vel:= 0;
+Axis.OL_IN_Slave_Enable:= 0;
+Axis.OL_IN_Slave_Command:= 0;
+Axis.CL_IN_Slave_Enable:= 0;
+Axis.CL_IN_Slave_Command:= 0;
+Axis.IN_Func_1:= 0;	//Should these be here?
+Axis.IN_Func_2:= 0;	//Should these be here?	
+Axis.IN_Func_3:= 0;	//Should these be here?	
+Axis.IN_Func_4:= 0;	//Should these be here?	
+Axis.OL_IN_Bump_Duration:= T#0MS; 
+Axis.OL_IN_Bump_Trigger:= 0;
+Axis.CL_RUN_Position_Reached:=0;
+]]></ST>
+    </Implementation>
+    <LineIds Name="Disable_Axis">
+      <LineId Id="3" Count="9" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="13" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="TS_Component" Id="{d8d0e447-419b-4ee3-897c-bd6ff487eb74}">
+    <Declaration><![CDATA[TYPE TS_Component : 
+	STRUCT
+		B_TYPE : INT:=0; //0=Momentary Pushbutton, 1=Maintained Pushbutton, 2=Toggle Pushbutton, 10=Indicator
+		size : INT; //0=125x100PB, 1=75x75PB, 2=160x75PB, 3=250x75PB, 10=300x50IN, 11=61x40IN
+		bitmap_ID : STRING(80); //Image for compnent display
+		display_text : STRING(80); //Text to display on component
+		display_state : INT; //PB0=Grey, PB1=Blue, PB2=GN, PB3=RD, PB4=GY, IN0=BU, IN1=GN, IN2=RD, IN3=YL, IN4=GY, IN5=RR, IN6=RY, IN7=YR
+		invisible : BOOL; //0=visible, 1=invisible
+		Active : BOOL:=0; //Input from touchscreen component press
+		run_status : BOOL:=0; //bit to track the component operations
+		State : BOOL:=0; //Output state of the component
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

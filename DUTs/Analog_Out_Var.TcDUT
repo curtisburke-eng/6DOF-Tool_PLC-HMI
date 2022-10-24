@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4018.5">
+  <DUT Name="Analog_Out_Var" Id="{5b0310ec-63c3-45d0-aa0e-1ee99e72c837}">
+    <Declaration><![CDATA[TYPE Analog_Out_Var : 
+	STRUCT
+		Data_Out : REAL;
+		Scale : REAL:=327.67;
+		Offset : REAL:=0;
+		Value : REAL;
+		Value_Max : REAL:=100.0;
+		Value_Min : REAL:=-100.0;
+		Value_Max_Low : REAL:=0.0;
+		Value_Min_Low : REAL:=0.0;
+		Out_Type : INT:=1;
+		OUT_CURVE_TYPE : INT:=0;
+	END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

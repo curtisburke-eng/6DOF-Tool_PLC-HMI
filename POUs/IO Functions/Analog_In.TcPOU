@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4018.5">
+  <POU Name="Analog_In" Id="{1c321cbd-560d-4478-b03d-8f0ca6189f7c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION Analog_In : INT
+
+VAR_IN_OUT
+	AI: Analog_In_Var;
+END_VAR
+
+VAR
+	i: INT:=0;
+	sum: REAL:=0;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* Calculates an analog input*)
+Analog_In := 0;
+
+IF (AI.Filter_Type=0) THEN
+	AI.Value := (AI.Raw_Data * AI.Scale + AI.Offset);
+ELSIF (AI.Filter_Type=1) THEN
+	AI.Value := (AI.Raw_Data * AI.Scale + AI.Offset)*AI.F1_Gain + AI.Value*(1- AI.F1_Gain);
+ELSIF (AI.Filter_Type=2) THEN
+	FOR i:=0 TO (AI.F2_History_Length-1) BY 1 DO
+		AI.F2_Data_History[AI.F2_History_Length-i]:=AI.F2_Data_History[AI.F2_History_Length-i-1];
+	END_FOR
+	AI.F2_Data_History[1] := (AI.Raw_Data * AI.Scale + AI.Offset);
+	sum:=0;
+	FOR i:=1 TO (AI.F2_History_Length) BY 1 DO
+		sum:=sum + AI.F2_Data_History[i];
+	END_FOR
+	AI.Value := sum/AI.F2_History_Length;
+END_IF]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

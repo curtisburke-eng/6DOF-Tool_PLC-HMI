@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="LED_CONTROL" Id="{6f700a0c-a4e5-4586-a0e9-10cd31e8b38b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION LED_CONTROL : INT
+
+VAR_IN_OUT
+	LED_CONT: LED;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//LED CONTROL WITH 
+	//Checks if the input command has changed
+		IF ( ((LED_CONT.IN_PERCENT_ON<>LED_CONT.CONT_LAST_PERCENT) OR LED_CONT.IN_RESET=1) AND LED_CONT.CONT_STEP=0 ) THEN
+			LED_CONT.CONT_STEP:=1;
+		END_IF
+		LED_CONT.CONT_LAST_PERCENT:=LED_CONT.IN_PERCENT_ON;
+		
+	//Executes the write command for a change in current
+		IF (LED_CONT.IN_ENABLE=0) THEN
+			LED_CONT.OUT_LED_EN:=0;
+			LED_CONT.CONT_STEP:=0;
+			LED_CONT.IN_RESET:=0;
+			LED_CONT.CONT_STEP_TON.IN:=0;
+		ELSIF (LED_CONT.fbSdoWrite1.bBusy) THEN
+			LED_CONT.fbSdoWrite1(
+					sNetId          := LED_CONT.sNetId,
+					nSlaveAddr      := LED_CONT.nSlaveAddr,
+					nIndex          := LED_CONT.nIndex_mA,
+					nSubIndex       := LED_CONT.nSubIndex_mA,
+					pSrcBuf         := ADR(LED_CONT.OUT_LED_mA),
+					cbBufLen        := SIZEOF(LED_CONT.OUT_LED_mA),
+					bExecute        := 0
+			);
+		ELSIF (LED_CONT.CONT_STEP=1) THEN
+			LED_CONT.OUT_LED_EN:=0;
+			LED_CONT.CONT_STEP:=2;
+		ELSIF (LED_CONT.CONT_STEP=2) THEN
+			IF (LED_CONT.IN_PERCENT_ON=0) THEN
+				LED_CONT.OUT_LED_mA :=  0;
+			ELSE
+				LED_CONT.OUT_LED_mA :=  REAL_TO_INT(INT_TO_REAL(LED_CONT.CONF_MAX_CURRENT-LED_CONT.CONF_MIN_CURRENT)*INT_TO_REAL(LED_CONT.IN_PERCENT_ON)/100 + INT_TO_REAL(LED_CONT.CONF_MIN_CURRENT));
+			END_IF
+
+			LED_CONT.fbSdoWrite1(
+					sNetId          := LED_CONT.sNetId,
+					nSlaveAddr      := LED_CONT.nSlaveAddr,
+					nIndex          := LED_CONT.nIndex_mA,
+					nSubIndex       := LED_CONT.nSubIndex_mA,
+					pSrcBuf         := ADR(LED_CONT.OUT_LED_mA),
+					cbBufLen        := SIZEOF(LED_CONT.OUT_LED_mA),
+					bExecute        := 1
+			);
+			LED_CONT.CONT_STEP:=3;
+		ELSIF (LED_CONT.CONT_STEP=3) THEN
+			LED_CONT.OUT_LED_EN:=1;
+			LED_CONT.IN_RESET:=0;
+			IF (LED_CONT.CONT_STEP_TON.IN=1) THEN
+				LED_CONT.CONT_STEP_TON.IN:=0;
+			ELSE
+				LED_CONT.CONT_STEP_TON.IN:=1;
+				LED_CONT.CONT_STEP:=4;
+			END_IF
+		ELSIF (LED_CONT.CONT_STEP=4 AND LED_CONT.CONT_STEP_TON.Q) THEN
+			IF (LED_CONT.OUT_LED_mA=0) THEN
+				LED_CONT.OUT_LED_EN:=0;
+			END_IF
+			LED_CONT.CONT_STEP:=0;
+			LED_CONT.CONT_STEP_TON.IN:=0;
+		END_IF
+
+	LED_CONT.CONT_STEP_TON();	
+	
+//PREVIOUS CODE FOR EXAMPLE
+	(*//TOP LED CONTROL
+		IF (fbSdoWrite1.bBusy) THEN
+			fbSdoWrite1(
+					sNetId          := '169.254.223.48.2.1',
+					nSlaveAddr      := 1025,
+					nIndex          := 32768,
+					nSubIndex       := 2,
+					pSrcBuf         := ADR(nValue1),
+					cbBufLen        := SIZEOF(nValue1),
+					bExecute        := 0
+			);
+		ELSIF (RGP.PROG.HMI_TOP_LED_CONTROL_CHANGE=1 AND RGP.PROG.HMI_TOP_LED_ENABLE=1 ) THEN
+			RGP.PROG.HMI_TOP_LED_ENABLE:=0;
+		ELSIF (RGP.PROG.HMI_TOP_LED_CONTROL_CHANGE=1 AND RGP.PROG.HMI_TOP_LED_ENABLE=0 ) THEN
+			RGP.PROG.HMI_TOP_LED_CONTROL_CHANGE:=0;
+			IF (RGP.PROG.P51_LED_1_State=1) THEN
+				nValue1:=68;
+			ELSIF (RGP.PROG.P51_LED_1_State=2) THEN
+				nValue1:=136;
+			ELSIF (RGP.PROG.P51_LED_1_State=3) THEN
+				nValue1:=204;
+			ELSIF (RGP.PROG.P51_LED_1_State=4) THEN
+				nValue1:=272;
+			ELSIF (RGP.PROG.P51_LED_1_State=5) THEN
+				nValue1:=340;
+			END_IF
+				fbSdoWrite1(
+						sNetId          := '169.254.223.48.2.1',
+						nSlaveAddr      := 1025,
+						nIndex          := 32768,
+						nSubIndex       := 2,
+						pSrcBuf         := ADR(nValue1),
+						cbBufLen        := SIZEOF(nValue1),
+						bExecute        := 1
+				);
+		ELSIF (RGP.PROG.HMI_TOP_LED_CONTROL_CHANGE=0 AND RGP.PROG.P51_LED_1_State<>0 ) THEN
+			RGP.PROG.HMI_TOP_LED_ENABLE:=1;
+		ELSIF (RGP.PROG.HMI_TOP_LED_CONTROL_CHANGE=0 AND RGP.PROG.P51_LED_1_State=0 ) THEN
+			RGP.PROG.HMI_TOP_LED_ENABLE:=0;
+		ELSE
+			RGP.PROG.HMI_TOP_LED_ENABLE:=0;
+		END_IF
+	*)]]></ST>
+    </Implementation>
+    <LineIds Name="LED_CONTROL">
+      <LineId Id="331" Count="2" />
+      <LineId Id="335" Count="0" />
+      <LineId Id="442" Count="0" />
+      <LineId Id="400" Count="1" />
+      <LineId Id="339" Count="0" />
+      <LineId Id="408" Count="0" />
+      <LineId Id="416" Count="0" />
+      <LineId Id="443" Count="0" />
+      <LineId Id="409" Count="0" />
+      <LineId Id="440" Count="0" />
+      <LineId Id="288" Count="10" />
+      <LineId Id="417" Count="0" />
+      <LineId Id="299" Count="0" />
+      <LineId Id="449" Count="1" />
+      <LineId Id="453" Count="0" />
+      <LineId Id="455" Count="0" />
+      <LineId Id="457" Count="0" />
+      <LineId Id="454" Count="0" />
+      <LineId Id="341" Count="0" />
+      <LineId Id="313" Count="0" />
+      <LineId Id="342" Count="6" />
+      <LineId Id="321" Count="0" />
+      <LineId Id="418" Count="0" />
+      <LineId Id="411" Count="0" />
+      <LineId Id="410" Count="0" />
+      <LineId Id="419" Count="0" />
+      <LineId Id="432" Count="0" />
+      <LineId Id="434" Count="3" />
+      <LineId Id="430" Count="0" />
+      <LineId Id="404" Count="0" />
+      <LineId Id="422" Count="0" />
+      <LineId Id="412" Count="0" />
+      <LineId Id="423" Count="0" />
+      <LineId Id="420" Count="0" />
+      <LineId Id="439" Count="0" />
+      <LineId Id="328" Count="0" />
+      <LineId Id="424" Count="1" />
+      <LineId Id="351" Count="0" />
+      <LineId Id="441" Count="0" />
+      <LineId Id="352" Count="41" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

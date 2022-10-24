@@ -1,0 +1,262 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <POU Name="PERSISTENT_DATA" Id="{37719153-0319-4bc2-92b7-7dbf7a73d3e7}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Persistent_Data (*: INT*)
+VAR
+	Persis_start_TON: TON;
+	Persis_init:BOOL:=0;
+	
+	Persistant_Load_Incorrect:BOOL:=0;
+END_VAR
+
+VAR_IN_OUT
+	RGP: System;
+	TS_IN: Touchscreen;
+END_VAR
+
+VAR PERSISTENT
+	Nor_Ops_Last_Panel:INT;
+	RGP_EN1000_PLC1101_TS_P02_USER_PASSWORD1: STRING(9);
+	RGP_EN1000_PLC1101_TS_P02_USER_PASSWORD2: STRING(9);
+	
+// Motion Axis
+	RGP_EN1000_DV1150_TRANSX_DRIVE_Feedback_Rollover_Count : INT;
+	RGP_EN1000_DV1150_TRANSX_DRIVE_Feedback_Raw_Data_Old : REAL;
+	RGP_EN1000_DV1150_TRANSX_DRIVE_Feedback_Offset : REAL;
+	
+	RGP_EN1000_DV1175_TRANSY_DRIVE_Feedback_Rollover_Count : INT;
+	RGP_EN1000_DV1175_TRANSY_DRIVE_Feedback_Raw_Data_Old : REAL;
+	RGP_EN1000_DV1175_TRANSY_DRIVE_Feedback_Offset : REAL;
+
+	RGP_EN1000_DV1151_JACK1_DRIVE_Feedback_Rollover_Count : INT;
+	RGP_EN1000_DV1151_JACK1_DRIVE_Feedback_Raw_Data_Old : REAL;
+	RGP_EN1000_DV1151_JACK1_DRIVE_Feedback_Offset : REAL;
+
+	RGP_EN1000_DV1275_JACK2_DRIVE_Feedback_Rollover_Count : INT;
+	RGP_EN1000_DV1275_JACK2_DRIVE_Feedback_Raw_Data_Old : REAL;
+	RGP_EN1000_DV1275_JACK2_DRIVE_Feedback_Offset : REAL;
+
+	RGP_EN1000_DV1301_JACK3_DRIVE_Feedback_Rollover_Count : INT;
+	RGP_EN1000_DV1301_JACK3_DRIVE_Feedback_Raw_Data_Old : REAL;
+	RGP_EN1000_DV1301_JACK3_DRIVE_Feedback_Offset : REAL;
+	
+	RGP_EN1000_DV1325_POS_TOOL_ROTZ_DRIVE_Feedback_Rollover_Count : INT;
+	RGP_EN1000_DV1325_POS_TOOL_ROTZ_DRIVE_Feedback_Raw_Data_Old : REAL;
+	RGP_EN1000_DV1325_POS_TOOL_ROTZ_DRIVE_Feedback_Offset : REAL;
+
+// Sensors
+	RGP_PROG_DV1390_TILT_SENSOR1_WARN_LEVEL : REAL;
+	RGP_PROG_DV1396_TILT_SENSOR2_WARN_LEVEL : REAL; 
+	
+	RGP_PROG_DV1375_LOAD_CELL_JACK1_WARN_LEVEL : REAL;
+	RGP_PROG_DV1379_LOAD_CELL_JACK2_WARN_LEVEL : REAL;
+	RGP_PROG_DV1385_LOAD_CELL_JACK3_WARN_LEVEL : REAL;
+	
+// Tilt Control
+	RGP_PROG_JACK1_ANGLE_ABOUT_Z : REAL;
+	RGP_PROG_JACK2_ANGLE_ABOUT_Z : REAL;
+	RGP_PROG_JACK3_ANGLE_ABOUT_Z : REAL;
+	
+	RGP_PROG_JACK1_X_POSITION : REAL;
+	RGP_PROG_JACK2_X_POSITION : REAL;
+	RGP_PROG_JACK3_X_POSITION : REAL;
+		
+	RGP_PROG_JACK1_Y_POSITION : REAL;
+	RGP_PROG_JACK2_Y_POSITION : REAL;
+	RGP_PROG_JACK3_Y_POSITION : REAL;
+	 
+	RGP_PROG_JACK1_Z_POSITION : REAL;
+	RGP_PROG_JACK2_Z_POSITION : REAL;
+	RGP_PROG_JACK3_Z_POSITION : REAL;
+	
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Persistant Data Control*)
+	Persis_start_TON.PT:=T#2000MS;
+	Persis_start_TON.IN:=1;
+	Persis_start_TON();
+	IF (Persis_init=1) THEN
+		Nor_Ops_Last_Panel:=RGP.PROG.HMI_OPS_LAST_SCREEN;
+		
+		// Motion Axes
+			RGP_EN1000_DV1150_TRANSX_DRIVE_Feedback_Rollover_Count := RGP.EN1000.DV1150_TRANSX_DRIVE.Feedback.Rollover_Count;
+			RGP_EN1000_DV1150_TRANSX_DRIVE_Feedback_Raw_Data_Old := RGP.EN1000.DV1150_TRANSX_DRIVE.Feedback.Raw_Data_Old;
+			RGP_EN1000_DV1150_TRANSX_DRIVE_Feedback_Offset := RGP.EN1000.DV1150_TRANSX_DRIVE.Feedback.Offset;
+			
+			RGP_EN1000_DV1175_TRANSY_DRIVE_Feedback_Rollover_Count := RGP.EN1000.DV1175_TRANSY_DRIVE.Feedback.Rollover_Count;
+			RGP_EN1000_DV1175_TRANSY_DRIVE_Feedback_Raw_Data_Old := RGP.EN1000.DV1175_TRANSY_DRIVE.Feedback.Raw_Data_Old;
+			RGP_EN1000_DV1175_TRANSY_DRIVE_Feedback_Offset := RGP.EN1000.DV1175_TRANSY_DRIVE.Feedback.Offset;
+		
+			RGP_EN1000_DV1151_JACK1_DRIVE_Feedback_Rollover_Count := RGP.EN1000.DV1151_JACK1_DRIVE.Feedback.Rollover_Count;
+			RGP_EN1000_DV1151_JACK1_DRIVE_Feedback_Raw_Data_Old := RGP.EN1000.DV1151_JACK1_DRIVE.Feedback.Raw_Data_Old;
+			RGP_EN1000_DV1151_JACK1_DRIVE_Feedback_Offset := RGP.EN1000.DV1151_JACK1_DRIVE.Feedback.Offset;
+			
+			RGP_EN1000_DV1275_JACK2_DRIVE_Feedback_Rollover_Count := RGP.EN1000.DV1275_JACK2_DRIVE.Feedback.Rollover_Count;
+			RGP_EN1000_DV1275_JACK2_DRIVE_Feedback_Raw_Data_Old := RGP.EN1000.DV1275_JACK2_DRIVE.Feedback.Raw_Data_Old;
+			RGP_EN1000_DV1275_JACK2_DRIVE_Feedback_Offset := RGP.EN1000.DV1275_JACK2_DRIVE.Feedback.Offset;
+			
+			RGP_EN1000_DV1301_JACK3_DRIVE_Feedback_Offset := RGP.EN1000.DV1301_JACK3_DRIVE.Feedback.Rollover_Count;
+			RGP_EN1000_DV1301_JACK3_DRIVE_Feedback_Raw_Data_Old := RGP.EN1000.DV1301_JACK3_DRIVE.Feedback.Raw_Data_Old;
+			RGP_EN1000_DV1301_JACK3_DRIVE_Feedback_Offset := RGP.EN1000.DV1301_JACK3_DRIVE.Feedback.Offset;
+		
+			RGP_EN1000_DV1325_POS_TOOL_ROTZ_DRIVE_Feedback_Rollover_Count := RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.Feedback.Rollover_Count;
+			RGP_EN1000_DV1325_POS_TOOL_ROTZ_DRIVE_Feedback_Raw_Data_Old := RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.Feedback.Raw_Data_Old;
+			RGP_EN1000_DV1325_POS_TOOL_ROTZ_DRIVE_Feedback_Offset := RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.Feedback.Offset;
+		
+		// Sensors
+			RGP_PROG_DV1390_TILT_SENSOR1_WARN_LEVEL := RGP.PROG.DV1390_TILT_SENSOR1_WARN_LEVEL;
+			RGP_PROG_DV1396_TILT_SENSOR2_WARN_LEVEL := RGP.PROG.DV1396_TILT_SENSOR2_WARN_LEVEL;
+			
+			RGP_PROG_DV1375_LOAD_CELL_JACK1_WARN_LEVEL := RGP.PROG.DV1375_LOAD_CELL_JACK1_WARN_LEVEL;
+			RGP_PROG_DV1379_LOAD_CELL_JACK2_WARN_LEVEL := RGP.PROG.DV1379_LOAD_CELL_JACK2_WARN_LEVEL;
+			RGP_PROG_DV1385_LOAD_CELL_JACK3_WARN_LEVEL := RGP.PROG.DV1385_LOAD_CELL_JACK3_WARN_LEVEL;
+		
+		// Tilt Control
+			RGP_PROG_JACK1_ANGLE_ABOUT_Z := RGP.PROG.JACK1_ANGLE_ABOUT_Z;
+			RGP_PROG_JACK2_ANGLE_ABOUT_Z := RGP.PROG.JACK2_ANGLE_ABOUT_Z;
+			RGP_PROG_JACK2_ANGLE_ABOUT_Z := RGP.PROG.JACK3_ANGLE_ABOUT_Z;
+								
+			RGP_PROG_JACK1_X_POSITION := RGP.PROG.JACK1_X_POSITION;
+			RGP_PROG_JACK2_X_POSITION := RGP.PROG.JACK2_X_POSITION;
+			RGP_PROG_JACK3_X_POSITION := RGP.PROG.JACK3_X_POSITION;
+				
+			RGP_PROG_JACK1_Y_POSITION := RGP.PROG.JACK1_Y_POSITION;
+			RGP_PROG_JACK2_Y_POSITION := RGP.PROG.JACK2_Y_POSITION;
+			RGP_PROG_JACK3_Y_POSITION := RGP.PROG.JACK3_Y_POSITION;
+			 
+			RGP_PROG_JACK1_Z_POSITION := RGP.PROG.JACK1_Z_POSITION;
+			RGP_PROG_JACK2_Z_POSITION := RGP.PROG.JACK2_Z_POSITION;
+			RGP_PROG_JACK3_Z_POSITION := RGP.PROG.JACK3_Z_POSITION;
+
+	ELSIF (Persis_start_TON.Q AND Persis_Init=0) THEN
+		//CHECKS THE DATA READ FROM THE PERSISTANT DATA
+			IF (Nor_Ops_Last_Panel<>12 OR Nor_Ops_Last_Panel<>14 OR Persistant_Load_Incorrect=1 ) THEN
+				RGP.PROG.HMI_OPS_LAST_SCREEN:=12;
+				Persistant_Load_Incorrect:=1;
+			ELSE
+				RGP.PROG.HMI_OPS_LAST_SCREEN:=Nor_Ops_Last_Panel;
+			END_IF
+			// Motion Axes
+				RGP.EN1000.DV1150_TRANSX_DRIVE.Feedback.Rollover_Count := RGP_EN1000_DV1150_TRANSX_DRIVE_Feedback_Rollover_Count;
+				RGP.EN1000.DV1150_TRANSX_DRIVE.Feedback.Raw_Data_Old := RGP_EN1000_DV1150_TRANSX_DRIVE_Feedback_Raw_Data_Old;
+				RGP.EN1000.DV1150_TRANSX_DRIVE.Feedback.Offset := RGP_EN1000_DV1150_TRANSX_DRIVE_Feedback_Offset;
+	
+				RGP.EN1000.DV1175_TRANSY_DRIVE.Feedback.Rollover_Count := RGP_EN1000_DV1175_TRANSY_DRIVE_Feedback_Rollover_Count;
+				RGP.EN1000.DV1175_TRANSY_DRIVE.Feedback.Raw_Data_Old := RGP_EN1000_DV1175_TRANSY_DRIVE_Feedback_Raw_Data_Old;
+				RGP.EN1000.DV1175_TRANSY_DRIVE.Feedback.Offset := RGP_EN1000_DV1175_TRANSY_DRIVE_Feedback_Offset;
+	
+				RGP.EN1000.DV1151_JACK1_DRIVE.Feedback.Rollover_Count := RGP_EN1000_DV1151_JACK1_DRIVE_Feedback_Rollover_Count;
+				RGP.EN1000.DV1151_JACK1_DRIVE.Feedback.Raw_Data_Old := RGP_EN1000_DV1151_JACK1_DRIVE_Feedback_Raw_Data_Old;
+				RGP.EN1000.DV1151_JACK1_DRIVE.Feedback.Offset := RGP_EN1000_DV1151_JACK1_DRIVE_Feedback_Offset;
+	
+				RGP.EN1000.DV1275_JACK2_DRIVE.Feedback.Rollover_Count := RGP_EN1000_DV1275_JACK2_DRIVE_Feedback_Rollover_Count;
+				RGP.EN1000.DV1275_JACK2_DRIVE.Feedback.Raw_Data_Old := RGP_EN1000_DV1275_JACK2_DRIVE_Feedback_Raw_Data_Old;
+				RGP.EN1000.DV1275_JACK2_DRIVE.Feedback.Offset := RGP_EN1000_DV1275_JACK2_DRIVE_Feedback_Offset;
+	
+				RGP.EN1000.DV1301_JACK3_DRIVE.Feedback.Rollover_Count  :=  RGP_EN1000_DV1301_JACK3_DRIVE_Feedback_Rollover_Count;
+				RGP.EN1000.DV1301_JACK3_DRIVE.Feedback.Raw_Data_Old := RGP_EN1000_DV1301_JACK3_DRIVE_Feedback_Raw_Data_Old;
+				RGP.EN1000.DV1301_JACK3_DRIVE.Feedback.Offset := RGP_EN1000_DV1301_JACK3_DRIVE_Feedback_Offset;
+	
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.Feedback.Rollover_Count := RGP_EN1000_DV1325_POS_TOOL_ROTZ_DRIVE_Feedback_Rollover_Count;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.Feedback.Raw_Data_Old := RGP_EN1000_DV1325_POS_TOOL_ROTZ_DRIVE_Feedback_Raw_Data_Old;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.Feedback.Offset := RGP_EN1000_DV1325_POS_TOOL_ROTZ_DRIVE_Feedback_Offset;
+				
+			// Sensors
+				RGP.PROG.DV1390_TILT_SENSOR1_WARN_LEVEL := RGP_PROG_DV1390_TILT_SENSOR1_WARN_LEVEL;
+				RGP.PROG.DV1396_TILT_SENSOR2_WARN_LEVEL := RGP_PROG_DV1396_TILT_SENSOR2_WARN_LEVEL;	
+				
+				RGP.PROG.DV1375_LOAD_CELL_JACK1_WARN_LEVEL := RGP_PROG_DV1375_LOAD_CELL_JACK1_WARN_LEVEL; 
+				RGP.PROG.DV1379_LOAD_CELL_JACK2_WARN_LEVEL := RGP_PROG_DV1379_LOAD_CELL_JACK2_WARN_LEVEL;
+				RGP.PROG.DV1385_LOAD_CELL_JACK3_WARN_LEVEL := RGP_PROG_DV1385_LOAD_CELL_JACK3_WARN_LEVEL;
+			
+			// Tilt Control
+				RGP.PROG.JACK1_ANGLE_ABOUT_Z := RGP_PROG_JACK1_ANGLE_ABOUT_Z;
+				RGP.PROG.JACK2_ANGLE_ABOUT_Z := RGP_PROG_JACK2_ANGLE_ABOUT_Z;
+				RGP.PROG.JACK2_ANGLE_ABOUT_Z := RGP_PROG_JACK3_ANGLE_ABOUT_Z;
+									
+				RGP.PROG.JACK1_X_POSITION := RGP_PROG_JACK1_X_POSITION;
+				RGP.PROG.JACK2_X_POSITION := RGP_PROG_JACK2_X_POSITION;
+				RGP.PROG.JACK3_X_POSITION := RGP_PROG_JACK3_X_POSITION;
+					
+				RGP.PROG.JACK1_Y_POSITION := RGP_PROG_JACK1_Y_POSITION;
+				RGP.PROG.JACK2_Y_POSITION := RGP_PROG_JACK2_Y_POSITION;
+				RGP.PROG.JACK3_Y_POSITION := RGP_PROG_JACK3_Y_POSITION;
+				
+				RGP.PROG.JACK1_Z_POSITION := RGP_PROG_JACK1_Z_POSITION;
+				RGP.PROG.JACK2_Z_POSITION := RGP_PROG_JACK2_Z_POSITION;
+				RGP.PROG.JACK3_Z_POSITION := RGP_PROG_JACK3_Z_POSITION;
+			
+			Persis_init:=1;
+		END_IF
+
+	//CONTROLS THE PERSISTANT DATA LOAD FAULT BIT, UNLATCHES BIT ONCE THE OPERATIONS SCREENS ARE ACCESSED	
+		IF (Persistant_Load_Incorrect=1 AND RGP.ACTIVE_HMI.TS.Active_Panel<>12) THEN
+			RGP.PROG.Persistant_Data_Load_Fault:=1;
+		ELSIF (Persistant_Load_Incorrect=1 AND RGP.ACTIVE_HMI.TS.Active_Panel=12) THEN
+			RGP.PROG.Persistant_Data_Load_Fault:=0;
+			Persistant_Load_Incorrect:=0;
+		END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="PERSISTENT_DATA">
+      <LineId Id="3" Count="4" />
+      <LineId Id="227" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="1295" Count="0" />
+      <LineId Id="1068" Count="0" />
+      <LineId Id="1067" Count="0" />
+      <LineId Id="1066" Count="0" />
+      <LineId Id="956" Count="0" />
+      <LineId Id="1096" Count="1" />
+      <LineId Id="1091" Count="0" />
+      <LineId Id="957" Count="0" />
+      <LineId Id="1098" Count="2" />
+      <LineId Id="806" Count="0" />
+      <LineId Id="1103" Count="1" />
+      <LineId Id="1102" Count="0" />
+      <LineId Id="1105" Count="1" />
+      <LineId Id="1101" Count="0" />
+      <LineId Id="1112" Count="0" />
+      <LineId Id="1114" Count="0" />
+      <LineId Id="1117" Count="0" />
+      <LineId Id="1115" Count="0" />
+      <LineId Id="1113" Count="0" />
+      <LineId Id="1116" Count="0" />
+      <LineId Id="1294" Count="0" />
+      <LineId Id="967" Count="0" />
+      <LineId Id="1073" Count="0" />
+      <LineId Id="1200" Count="0" />
+      <LineId Id="1202" Count="1" />
+      <LineId Id="1201" Count="0" />
+      <LineId Id="1255" Count="0" />
+      <LineId Id="1293" Count="0" />
+      <LineId Id="1257" Count="0" />
+      <LineId Id="1259" Count="3" />
+      <LineId Id="1264" Count="3" />
+      <LineId Id="1269" Count="0" />
+      <LineId Id="1280" Count="0" />
+      <LineId Id="1271" Count="0" />
+      <LineId Id="1273" Count="1" />
+      <LineId Id="1256" Count="0" />
+      <LineId Id="530" Count="0" />
+      <LineId Id="64" Count="1" />
+      <LineId Id="73" Count="5" />
+      <LineId Id="239" Count="0" />
+      <LineId Id="1118" Count="22" />
+      <LineId Id="1142" Count="0" />
+      <LineId Id="1313" Count="0" />
+      <LineId Id="1143" Count="0" />
+      <LineId Id="969" Count="0" />
+      <LineId Id="1191" Count="0" />
+      <LineId Id="1193" Count="0" />
+      <LineId Id="1192" Count="0" />
+      <LineId Id="1198" Count="1" />
+      <LineId Id="1298" Count="0" />
+      <LineId Id="1314" Count="0" />
+      <LineId Id="1300" Count="12" />
+      <LineId Id="1297" Count="0" />
+      <LineId Id="1296" Count="0" />
+      <LineId Id="136" Count="8" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

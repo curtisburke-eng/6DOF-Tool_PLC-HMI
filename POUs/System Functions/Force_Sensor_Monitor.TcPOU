@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <POU Name="Force_Sensor_Monitor" Id="{0505eddd-1827-43ac-b759-ccbc87609ae1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION Force_Sensor_Monitor : INT
+
+VAR_IN_OUT
+	FS: Force_Sensor;
+	RGP: System;
+END_VAR
+
+VAR
+	M1: ARRAY [1..6]OF REAL;
+	M2: ARRAY [1..6]OF REAL;
+	Cal_Mat:ARRAY[1..6,1..6] OF REAL:= [ 87.540, 	-0.329, 	-0.706, 	-8.269, 	0.024, 		-1.982,
+										 0.555, 	89.060, 	0.094, 		0.684, 		-8.827, 	-0.275,
+										 -3.366, 	-4.824, 	175.448, 	0.302, 		-1.524, 	-16.311,
+										 6.022, 	3.196, 		-1.228, 	406.697, 	-2.289, 	10.619,
+										 -1.539, 	11.726, 	-0.921, 	0.892, 		402.019, 	6.171,
+										 -0.249, 	0.054, 		8.576, 		2.395, 		-1.236, 	397.095 ];
+	i:INT;
+	j:INT;
+	k:INT;
+END_VAR
+VAR CONSTANT
+(*	Force_Rating: INT := 20000;		(* full range force rating of sensor 0 - 20000lbs  ???????? *)
+	Moment_Rating: INT := 20000;
+	F_max: REAL := 200;	(*lbs*)
+	M_max: REAL :=20000;	(* in-lbs*)
+*)
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Calibrates the Force Sensor per the provided calibration matrix*)
+M1[1]:=FS.FXvolt.Value;
+M1[2]:=FS.FYvolt.Value;
+M1[3]:=FS.FZvolt.Value;
+M1[4]:=FS.MXvolt.Value;
+M1[5]:=FS.MYvolt.Value;
+M1[6]:=FS.MZvolt.Value;
+
+(*Matrix Multiply*)
+FOR i:=1 TO 6 DO
+		M2[i]:= 0;
+		FOR k:=1 TO 6 DO
+			M2[i]:=M2[i] + Cal_Mat[i,k]*M1[k];
+	END_FOR
+END_FOR
+
+(*Maps the result data to the force and moment variables*)
+FS.FX.Raw_Data:=M2[1];//*0.4535924; //conversion from lbs to kg
+FS.FY.Raw_Data:=M2[2];//*0.4535924; //conversion from lbs to kg
+FS.FZ.Raw_Data:=M2[3];//*0.4535924; //conversion from lbs to kg
+FS.MX.Raw_Data:=M2[5];//*0.112984829; //conversion from lb*in to N*m
+FS.MY.Raw_Data:=M2[4];//*0.112984829; //conversion from lb*in to N*m
+FS.MZ.Raw_Data:=M2[6];//*0.112984829; //conversion from lb*in to N*m
+	//NEED TO CONVERT TO METRIC UNITS
+
+Analog_In(FS.FX);
+Analog_In(FS.FY);
+Analog_In(FS.FZ);
+Analog_In(FS.MX);
+Analog_In(FS.MY);
+Analog_In(FS.MZ);
+
+	
+(*Calculates the Force and Moment Magnitudes*)
+FS.Force_Mag:=SQRT( FS.FX.Value*FS.FX.Value + FS.FY.Value*FS.FY.Value + FS.FZ.Value*FS.FZ.Value );
+FS.Moment_Mag:=SQRT( FS.MX.Value*FS.MX.Value + FS.MY.Value*FS.MY.Value + FS.MZ.Value*FS.MZ.Value );
+
+(*Checks if the force and moments are above the maximum acceptable values*)
+IF ( (FS.FX.Value > (1*FS.FXmax)) OR (FS.FX.Value < (-1*FS.FXmax)) ) THEN
+FS.Error.1:=TRUE;
+ELSE
+FS.Error.1:=FALSE;
+END_IF
+
+IF ( (FS.FY.Value > (1*FS.FYmax)) OR (FS.FY.Value < (-1*FS.FYmax)) ) THEN
+FS.Error.2:=TRUE;
+ELSE
+FS.Error.2:=FALSE;
+END_IF
+
+IF ( (FS.FZ.Value > (1*FS.FZmax)) OR (FS.FZ.Value < (-1*FS.FZmax)) ) THEN
+FS.Error.3:=TRUE;
+ELSE
+FS.Error.3:=FALSE;
+END_IF
+
+IF ( (FS.Force_Mag > (1*FS.FMAGmax)) OR (FS.Force_Mag < (-1*FS.FMAGmax)) ) THEN
+FS.Error.4:=TRUE;
+ELSE
+FS.Error.4:=FALSE;
+END_IF
+
+IF ( (FS.MX.Value > (1*FS.MXmax)) OR (FS.MX.Value < (-1*FS.MXmax)) ) THEN
+FS.Error.5:=TRUE;
+ELSE
+FS.Error.5:=FALSE;
+END_IF
+
+IF ( (FS.MY.Value > (1*FS.MYmax)) OR (FS.MY.Value < (-1*FS.MYmax)) ) THEN
+FS.Error.6:=TRUE;
+ELSE
+FS.Error.6:=FALSE;
+END_IF
+
+IF ( (FS.MZ.Value > (1*FS.MZmax)) OR (FS.MZ.Value < (-1*FS.MZmax)) ) THEN
+FS.Error.7:=TRUE;
+ELSE
+FS.Error.7:=FALSE;
+END_IF
+
+IF ( (FS.Moment_Mag > (1*FS.MMAGmax)) OR (FS.Moment_Mag < (-1*FS.MMAGmax)) ) THEN
+FS.Error.8:=TRUE;
+ELSE
+FS.Error.8:=FALSE;
+END_IF
+
+IF ( (FS.FX.Value > (1*FS.FXwarn)) OR (FS.FX.Value < (-1*FS.FXwarn)) ) THEN
+FS.Error.9:=TRUE;
+ELSE
+FS.Error.9:=FALSE;
+END_IF
+
+IF ( (FS.FY.Value > (1*FS.FYwarn)) OR (FS.FY.Value < (-1*FS.FYwarn)) ) THEN
+FS.Error.10:=TRUE;
+ELSE
+FS.Error.10:=FALSE;
+END_IF
+
+IF ( (FS.FZ.Value > (1*FS.FZwarn)) OR (FS.FZ.Value < (-1*FS.FZwarn)) ) THEN
+FS.Error.11:=TRUE;
+ELSE
+FS.Error.11:=FALSE;
+END_IF
+
+IF ( (FS.Force_Mag > (1*FS.FMAGwarn)) OR (FS.Force_Mag < (-1*FS.FMAGwarn)) ) THEN
+FS.Error.12:=TRUE;
+ELSE
+FS.Error.12:=FALSE;
+END_IF
+
+IF ( (FS.Error.9=1 OR FS.Error.10=1 OR FS.Error.11=1 OR FS.Error.12=1) AND RGP.ACTIVE_HMI.TS.P00B_Alarm_Reset.State=1 ) THEN
+	FS.Force_Ackn:=1;
+ELSIF ( (FS.Error.9=0 AND FS.Error.10=0 AND FS.Error.11=0 AND FS.Error.12=0) ) THEN
+	FS.Force_Ackn:=0;
+END_IF
+
+(*
+(* or sum of squares*)
+XZ_Force_A:=SQRT(var1Square + var3Square);
+squared_Force_a:=SQRT(var1Square + var2Square + var3Square);
+var1Square:=EXPT(force_x_a2,2);
+var2Square:=EXPT(force_y_a2,2);
+var3Square:=EXPT(force_z_a,2);
+squared_Force_a2:=SQRT(var1Square + var2Square + var3Square);
+squared_Force_a2:= squared_Force_a2;
+var1Square:=EXPT(moment_x_a,2);
+var2Square:=EXPT(moment_y_a,2);
+var3Square:=EXPT(moment_z_a,2);
+XY_moment_A:=SQRT(var1Square + Var2Square);
+squared_Moment_a:=SQRT(var1Square + var2Square + var3Square);
+squared_Force_a:= squared_Force_a - 44.5;
+(*squared_Force_a := ( squared_Force_a + Squared_Force_a2)/2;*)
+(* zeroing out XYZ axis of the force sensor*)
+IF squared_force_a > 120 THEN
+	Force_sensor_flag_a:=TRUE;
+ELSE
+	Force_sensor_flag_a:=FALSE;
+END_IF
+(*end*)
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="Force_Sensor_Monitor">
+      <LineId Id="346" Count="138" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

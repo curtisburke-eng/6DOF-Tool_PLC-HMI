@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="Controller_Heartbeat" Id="{a0d09209-94d5-457c-8938-5dc386dfb57f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION Controller_Heartbeat : INT
+
+VAR_IN_OUT
+	RGP: System;	
+END_VAR
+
+VAR
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[	IF ( TRUE ) THEN //Condition to output the controller pulse, RGP has no remote HMI and the pulse should be output 
+		IF ( RGP.PROG.CONT_MON_ESTOP_FREQ_TIMER.Q ) THEN
+			RGP.PROG.CONT_MON_ESTOP_FREQ_TIMER.IN:=0;
+			IF (RGP.PROG.CONT_MON_PULSE=0) THEN
+				RGP.PROG.CONT_MON_PULSE:=1;
+			ELSE
+				RGP.PROG.CONT_MON_PULSE:=0;
+			END_IF
+			RGP.PROG.CONT_MON_ENABLE:=1;
+		ELSE
+			RGP.PROG.CONT_MON_ESTOP_FREQ_TIMER.IN:=1;
+		END_IF
+	ELSE
+		RGP.PROG.CONT_MON_ESTOP_FREQ_TIMER.IN:=0;
+		RGP.PROG.CONT_MON_PULSE:=0;
+		RGP.PROG.CONT_MON_ENABLE:=0;
+	END_IF
+	RGP.PROG.CONT_MON_ESTOP_FREQ_TIMER();
+		
+(*
+	//FRM Estop Logic for reference
+		ESTOP_FREQ_TIMER.PT:=T#25MS;
+		IF ( Outputs.RGP.PROG.HMI_FRHMI_Connected=0 OR ( Outputs.RGP.PROG.HMI_FRHMI_Connected=1 AND Outputs.RGP.PROG.HMI_FRHMI_Heartbeat_Healthy=1 AND Outputs.RGP.EN8000_FRHMI.PB8002_MOTION_STOP=1 ) ) THEN
+			IF ( ESTOP_FREQ_TIMER.Q ) THEN
+				ESTOP_FREQ_TIMER.IN:=0;
+				IF (RIO1114_DO6=0) THEN
+					RIO1114_DO6:=1;
+				ELSE
+					RIO1114_DO6:=0;
+				END_IF
+				RIO1110_DO5:=1;
+			ELSE
+				ESTOP_FREQ_TIMER.IN:=1;
+			END_IF
+			
+			IF(E_STOP_STEP=0) THEN
+				E_STOP_STEP:=1;	
+				RIO1114_DO6:=0;
+				RIO1110_DO5:=0;
+			END_IF
+
+		ELSE
+			ESTOP_FREQ_TIMER.IN:=0;
+			RIO1114_DO6:=0;
+			RIO1110_DO5:=0;
+			E_STOP_STEP:=0;
+		END_IF
+		ESTOP_FREQ_TIMER();
+
+		IF ( Outputs.RGP.PROG.HMI_FRHMI_Connected=1 AND Outputs.RGP.PROG.HMI_FRHMI_Heartbeat_Healthy=1 AND Outputs.RGP.EN8000_FRHMI.PB8006_MOTION_RESET ) THEN
+			Outputs.RGP.EN1000_CMF.CR1081_ESTOP_RESET:=1;
+		ELSE
+			Outputs.RGP.EN1000_CMF.CR1081_ESTOP_RESET:=0;
+		END_IF
+		RIO1114_DO5 := Outputs.RGP.EN1000_CMF.CR1081_ESTOP_RESET;
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="Controller_Heartbeat">
+      <LineId Id="79" Count="11" />
+      <LineId Id="98" Count="3" />
+      <LineId Id="103" Count="1" />
+      <LineId Id="113" Count="0" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="148" Count="0" />
+      <LineId Id="114" Count="18" />
+      <LineId Id="150" Count="0" />
+      <LineId Id="134" Count="13" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

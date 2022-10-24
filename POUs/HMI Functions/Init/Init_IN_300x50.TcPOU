@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="Init_IN_300x50" Id="{1a88e8f9-32df-4768-b9e0-32a480380990}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION Init_IN_300x50 : INT
+
+VAR_INPUT
+END_VAR
+
+VAR
+
+END_VAR
+
+VAR_IN_OUT
+	COMP:TS_Component;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[COMP.B_TYPE:=10;
+COMP.size:=10;]]></ST>
+    </Implementation>
+    <LineIds Name="Init_IN_300x50">
+      <LineId Id="677" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

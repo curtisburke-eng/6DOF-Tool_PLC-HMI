@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <DUT Name="ACT_HMI" Id="{14bf0b1c-64ab-489f-85b9-9ac7c720fe6b}">
+    <Declaration><![CDATA[(*This structure is for a Touchscreen Application*)
+TYPE ACT_HMI :
+STRUCT
+
+	TS : Touchscreen;
+	
+	//AUDIBLE_ALARM: Analog_Out_Var;
+	
+(* 	// Joysticks
+	RIGHTJS_Y_AXIS: D_Joystick;
+	RIGHTJS_X_AXIS: D_Joystick;
+	RIGHTJS_Z_AXIS: D_Joystick;
+	
+	LEFTJS_Y_AXIS: D_Joystick;
+	LEFTJS_X_AXIS: D_Joystick;
+	LEFTJS_Z_AXIS: D_Joystick;
+	
+	FLEFTJS_Y_AXIS: D_Joystick;
+	FLEFTJS_X_AXIS: D_Joystick;
+	FLEFTJS_Z_AXIS: D_Joystick;
+*)
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

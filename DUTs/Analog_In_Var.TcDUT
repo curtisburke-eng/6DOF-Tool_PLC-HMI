@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.0.38">
+  <DUT Name="Analog_In_Var" Id="{ec41e86e-3b0f-4a99-b3f4-5db8c991b826}">
+    <Declaration><![CDATA[TYPE Analog_In_Var : 
+	STRUCT
+		Raw_Data : REAL:=0;
+		Scale : REAL:=0;
+		Offset : REAL:=0;
+		Value : REAL:=0;
+		Input_Error : BOOL:=0;
+		Override_Enable : BOOL:=0;
+
+		Override_Data : REAL;
+		Filter_Type : INT;
+
+		F1_Gain : REAL;
+		F2_Data_History : ARRAY [0..20] OF REAL;
+		F2_History_Length : INT;
+	END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

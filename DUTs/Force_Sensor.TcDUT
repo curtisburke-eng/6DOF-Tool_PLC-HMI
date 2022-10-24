@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.12">
+  <DUT Name="Force_Sensor" Id="{a02acc08-f559-4fe5-93b0-2d03417c3c60}">
+    <Declaration><![CDATA[(*This structure is for a single Alarm*)
+TYPE Force_Sensor :
+STRUCT
+	FXvolt: Analog_In_Var;
+	FYvolt: Analog_In_Var;
+	FZvolt: Analog_In_Var;
+	MXvolt: Analog_In_Var;
+	MYvolt: Analog_In_Var;
+	MZvolt: Analog_In_Var;
+	FX: Analog_In_Var;
+	FY: Analog_In_Var;
+	FZ: Analog_In_Var;
+	MX: Analog_In_Var;
+	MY: Analog_In_Var;
+	MZ: Analog_In_Var;
+	Force_Mag:REAL;
+	Moment_Mag:REAL;
+	FXmax:REAL;
+	FYmax:REAL;
+	FZmax:REAL;
+	FMAGmax:REAL;
+	MXmax:REAL;
+	MYmax:REAL;
+	MZmax:REAL;
+	MMAGmax:REAL;
+	Error:DINT;
+	FXwarn:REAL;
+	FYwarn:REAL;
+	FZwarn:REAL;
+	FMAGwarn:REAL;
+	Force_Ackn:BOOL:=0;
+	
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

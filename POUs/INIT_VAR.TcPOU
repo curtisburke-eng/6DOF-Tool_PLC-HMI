@@ -1,0 +1,322 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <POU Name="INIT_VAR" Id="{207eca4f-f4c1-44d1-b749-935f58f99dce}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM INIT_VAR (*: INT*)
+VAR
+
+END_VAR
+VAR_INPUT
+	
+END_VAR
+VAR_OUTPUT
+	
+END_VAR
+
+VAR_IN_OUT
+	RGP: System;
+	Visualization : Touchscreen;
+END_VAR
+
+VAR CONSTANT
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Initialzation of Touchscreen Variables
+
+	// Global (All Screens) HMI Components
+		Visualization.P00_Alarm_Cycle_Timer.PT:= T#2S;
+		Init_IN_300x50(Visualization.P00D_Alarm_Status);
+		Init_IN_300x50(Visualization.P00D_Station_Status);
+		Init_PB_Mom_125x100(Visualization.P00B_Alarm_Reset);
+		
+	// Screen 1 : Home Screen
+		Init_PB_Mom_250x75(Visualization.P01B_Calibrate);
+		
+		Init_IN_300x50(Visualization.P01D_TiltAngle1);
+		Init_IN_300x50(Visualization.P01D_TiltAngle1);
+		Init_IN_300x50(Visualization.P01D_LoadCell1);
+		Init_IN_300x50(Visualization.P01D_LoadCell2);
+		Init_IN_300x50(Visualization.P01D_LoadCell3);
+		Init_IN_300x50(Visualization.P01D_XTRANS_Displacement);
+		Init_IN_300x50(Visualization.P01D_YTRANS_Displacement);
+		
+	// Screen 2 : Calibration Screen		
+		Init_PB_Mom_75x75(Visualization.P12B_HOME_SCREEN);
+		Init_PB_Mom_250x75(Visualization.P12B_Calibrate_Jack1);
+		Init_PB_Mom_250x75(Visualization.P12B_Calibrate_Jack2);
+		Init_PB_Mom_250x75(Visualization.P12B_Calibrate_Jack3);
+		Init_PB_Mom_250x75(Visualization.P12B_Calibrate_PosTool_RotZ);
+		Init_PB_Mom_250x75(Visualization.P12B_Calibrate_MonTool_RotZ);
+		Init_PB_Mom_250x75(Visualization.P12B_Calibrate_XTRANS);
+		Init_PB_Mom_250x75(Visualization.P12B_Calibrate_YTRANS);
+						
+	// Screen 3 : Motor Speed Selection Screen		
+		Init_PB_Mom_75x75(Visualization.P13B_HOME_SCREEN);
+		Init_PB_Mom_250x75(Visualization.P13B_TRANSX_SPEED_Toggle);
+		Init_PB_Mom_250x75(Visualization.P13B_TRANSY_SPEED_Toggle);
+		Init_PB_Mom_250x75(Visualization.P13B_All_JACKS_SPEED_Toggle);
+		Init_PB_Mom_250x75(Visualization.P13B_POS_TOOL_ZROT_SPEED_Toggle);
+		Init_PB_Mom_250x75(Visualization.P13B_MON_TOOL_ZROT_SPEED_Toggle);
+				
+// Motion Axis Init: Positioning Tool
+	// X-Translation 
+			// Axis Analog Output Init
+				//RGP.EN1000.DV1150_TRANSX_DRIVE.OUT_Analog.Value_Max_Low:=11.0;
+				//RGP.EN1000.DV1150_TRANSX_DRIVE.OUT_Analog.Value_Min_Low:=-8.0;
+				//RGP.EN1000.DV1150_TRANSX_DRIVE.OUT_Analog.Value_Max:=25.0;
+				//RGP.EN1000.DV1150_TRANSX_DRIVE.OUT_Analog.Value_Min:=-25.0;
+				RGP.EN1000.DV1150_TRANSX_DRIVE.OUT_Analog.Scale:=-327.67;
+				RGP.EN1000.DV1150_TRANSX_DRIVE.OUT_Analog.OUT_CURVE_TYPE:=0;
+			//Axis Feedback Init
+				//RGP.EN1000.DV1150_TRANSX_DRIVE.Feedback.Offset:=-343.62;
+				RGP.EN1000.DV1150_TRANSX_DRIVE.Feedback.Scale:=-0.000000156776720;//1.0/1048576;
+				RGP.EN1000.DV1150_TRANSX_DRIVE.Feedback.Raw_Data_Max:=1048576;
+				RGP.EN1000.DV1150_TRANSX_DRIVE.Feedback.Raw_Data_Min:=0;
+				RGP.EN1000.DV1150_TRANSX_DRIVE.Feedback.VFgain1:=0.7;
+				RGP.EN1000.DV1150_TRANSX_DRIVE.Feedback.Calibration_Position:=0.0; // Number correlates to where the EOT switch is (ie +55 or -55 or whatever range we set) 
+			//Axis EOT Limits Init
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.IN_SOFT_EOT_ENABLE:=0;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.IN_SOFT_EOT_NEG:=0.25;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.IN_SOFT_EOT_POS:=5;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.EOT_NEG_READING:=0;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.EOT_POS_READING:=6;	
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.Max_Following_Position_Error:=0.25;		
+	// Y-Translation 
+			//Axis Analog Output Init
+				//RGP.EN1000.DV1150_TRANSX_DRIVE.OUT_Analog.Value_Max_Low:=11.0;
+				//RGP.EN1000.DV1150_TRANSX_DRIVE.OUT_Analog.Value_Min_Low:=-8.0;
+				//RGP.EN1000.DV1150_TRANSX_DRIVE.OUT_Analog.Value_Max:=25.0;
+				//RGP.EN1000.DV1150_TRANSX_DRIVE.OUT_Analog.Value_Min:=-25.0;
+				RGP.EN1000.DV1175_TRANSY_DRIVE.OUT_Analog.Scale:=-327.67;
+				RGP.EN1000.DV1175_TRANSY_DRIVE.OUT_Analog.OUT_CURVE_TYPE:=0;
+			//Axis Feedback Init
+				//RGP.EN1000.DV1175_TRANSY_DRIVE.Feedback.Offset:=-343.62;
+				RGP.EN1000.DV1175_TRANSY_DRIVE.Feedback.Scale:=-0.000000156776720;//1.0/1048576;
+				RGP.EN1000.DV1175_TRANSY_DRIVE.Feedback.Raw_Data_Max:=1048576;
+				RGP.EN1000.DV1175_TRANSY_DRIVE.Feedback.Raw_Data_Min:=0;
+				RGP.EN1000.DV1175_TRANSY_DRIVE.Feedback.VFgain1:=0.7;
+				RGP.EN1000.DV1175_TRANSY_DRIVE.Feedback.Calibration_Position:=0.0;
+			//Axis EOT Limits Init
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.IN_SOFT_EOT_ENABLE:=0;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.IN_SOFT_EOT_NEG:=0.25;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.IN_SOFT_EOT_POS:=5;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.EOT_NEG_READING:=0;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.EOT_POS_READING:=6;	
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.Max_Following_Position_Error:=0.25;	
+		
+	// Z-Rotation 
+			//Axis Analog Output Init
+				//RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.OUT_Analog.Value_Max_Low:=11.0;
+				//RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.OUT_Analog.Value_Min_Low:=-8.0;
+				//RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.OUT_Analog.Value_Max:=25.0;
+				//RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.OUT_Analog.Value_Min:=-25.0;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.OUT_Analog.Scale:=-327.67;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.OUT_Analog.OUT_CURVE_TYPE:=0;
+			//Axis Feedback Init
+				//RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.Feedback.Offset:=-343.62;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.Feedback.Scale:=-0.000000156776720;//1.0/1048576;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.Feedback.Raw_Data_Max:=1048576;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.Feedback.Raw_Data_Min:=0;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.Feedback.VFgain1:=0.7;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.Feedback.Calibration_Position:=0.0;
+			//Axis EOT Limits Init
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.IN_SOFT_EOT_ENABLE:=0;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.IN_SOFT_EOT_NEG:=0.25;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.IN_SOFT_EOT_POS:=5;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.EOT_NEG_READING:=0;
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.EOT_POS_READING:=6;	
+				RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.Max_Following_Position_Error:=0.25;	
+				
+	// Jack 1 
+			//Axis Analog Output Init
+				//RGP.EN1000.DV1151_JACK1_DRIVE.OUT_Analog.Value_Max_Low:=11.0;
+				//RGP.EN1000.DV1151_JACK1_DRIVE.OUT_Analog.Value_Min_Low:=-8.0;
+				//RGP.EN1000.DV1151_JACK1_DRIVE.OUT_Analog.Value_Max:=25.0;
+				//RGP.EN1000.DV1151_JACK1_DRIVE.OUT_Analog.Value_Min:=-25.0;
+				RGP.EN1000.DV1151_JACK1_DRIVE.OUT_Analog.Scale:=-327.67;
+				RGP.EN1000.DV1151_JACK1_DRIVE.OUT_Analog.OUT_CURVE_TYPE:=0;
+			//Axis Feedback Init
+				//RGP.EN1000.DV1151_JACK1_DRIVE.Feedback.Offset:=-343.62;
+				RGP.EN1000.DV1151_JACK1_DRIVE.Feedback.Scale:=-0.000000156776720;//1.0/1048576;
+				RGP.EN1000.DV1151_JACK1_DRIVE.Feedback.Raw_Data_Max:=1048576;
+				RGP.EN1000.DV1151_JACK1_DRIVE.Feedback.Raw_Data_Min:=0;
+				RGP.EN1000.DV1151_JACK1_DRIVE.Feedback.VFgain1:=0.7;
+				RGP.EN1000.DV1151_JACK1_DRIVE.Feedback.Calibration_Position:=0.0;
+			//Axis Closed Loop Init
+				RGP.EN1000.DV1151_JACK1_DRIVE.CL_RUN_Max_Veln:=0.225;
+				RGP.EN1000.DV1151_JACK1_DRIVE.CL_RUN_Max_Velp:=0.225;
+				RGP.EN1000.DV1151_JACK1_DRIVE.CL_RUN_Pgain[1]:=40;
+				RGP.EN1000.DV1151_JACK1_DRIVE.CL_RUN_Dgain[1]:=10;
+				RGP.EN1000.DV1151_JACK1_DRIVE.CL_RUN_Igain[1]:=0.1;
+				RGP.EN1000.DV1151_JACK1_DRIVE.CL_RUN_VFFgain[1]:=20;
+				RGP.EN1000.DV1151_JACK1_DRIVE.CL_RUN_TON.PT := T#1S; 
+				RGP.EN1000.DV1151_JACK1_DRIVE.CL_Vel_Max_Adjust_TON.PT := T#2S;
+				RGP.EN1000.DV1151_JACK1_DRIVE.CL_Enable_Max_Vel_Adjustment := 1; 
+				RGP.EN1000.DV1151_JACK1_DRIVE.Max_Following_Position_Error:=10;
+			//Axis EOT Limits Init
+				RGP.EN1000.DV1151_JACK1_DRIVE.IN_EOT_POS:=0;
+				RGP.EN1000.DV1151_JACK1_DRIVE.IN_EOT_NEG:=0;				
+				RGP.EN1000.DV1151_JACK1_DRIVE.EOT_NEG_READING:=0;
+				RGP.EN1000.DV1151_JACK1_DRIVE.EOT_POS_READING:=6;	
+				RGP.EN1000.DV1151_JACK1_DRIVE.Max_Following_Position_Error:=0.25;	
+	
+	// Jack 2 
+			//Axis Analog Output Init
+				//RGP.EN1000.DV1275_JACK2_DRIVE.OUT_Analog.Value_Max_Low:=11.0;
+				//RGP.EN1000.DV1275_JACK2_DRIVE.OUT_Analog.Value_Min_Low:=-8.0;
+				//RGP.EN1000.DV1275_JACK2_DRIVE.OUT_Analog.Value_Max:=25.0;
+				//RGP.EN1000.DV1275_JACK2_DRIVE.OUT_Analog.Value_Min:=-25.0;
+				RGP.EN1000.DV1275_JACK2_DRIVE.OUT_Analog.Scale:=-327.67;
+				RGP.EN1000.DV1275_JACK2_DRIVE.OUT_Analog.OUT_CURVE_TYPE:=0;
+			//Axis Feedback Init
+				//RGP.EN1000.DV1275_JACK2_DRIVE.Feedback.Offset:=-343.62;
+				RGP.EN1000.DV1275_JACK2_DRIVE.Feedback.Scale:=-0.000000156776720;//1.0/1048576;
+				RGP.EN1000.DV1275_JACK2_DRIVE.Feedback.Raw_Data_Max:=1048576;
+				RGP.EN1000.DV1275_JACK2_DRIVE.Feedback.Raw_Data_Min:=0;
+				RGP.EN1000.DV1275_JACK2_DRIVE.Feedback.VFgain1:=0.7;
+				RGP.EN1000.DV1275_JACK2_DRIVE.Feedback.Calibration_Position:=0.0;
+			//Axis Closed Loop Init
+				RGP.EN1000.DV1275_JACK2_DRIVE.CL_RUN_Max_Veln:=0.225;
+				RGP.EN1000.DV1275_JACK2_DRIVE.CL_RUN_Max_Velp:=0.225;
+				RGP.EN1000.DV1275_JACK2_DRIVE.CL_RUN_Pgain[1]:=40;
+				RGP.EN1000.DV1275_JACK2_DRIVE.CL_RUN_Dgain[1]:=10;
+				RGP.EN1000.DV1275_JACK2_DRIVE.CL_RUN_Igain[1]:=0.1;
+				RGP.EN1000.DV1275_JACK2_DRIVE.CL_RUN_VFFgain[1]:=20;
+				RGP.EN1000.DV1275_JACK2_DRIVE.CL_RUN_TON.PT := T#1S; 
+				RGP.EN1000.DV1275_JACK2_DRIVE.CL_Vel_Max_Adjust_TON.PT := T#2S;
+				RGP.EN1000.DV1275_JACK2_DRIVE.CL_Enable_Max_Vel_Adjustment := 1; 
+				RGP.EN1000.DV1275_JACK2_DRIVE.Max_Following_Position_Error:=10;
+			//Axis EOT Limits Init
+				RGP.EN1000.DV1275_JACK2_DRIVE.IN_EOT_POS:=0;
+				RGP.EN1000.DV1275_JACK2_DRIVE.IN_EOT_NEG:=0;				
+				RGP.EN1000.DV1275_JACK2_DRIVE.EOT_NEG_READING:=0;
+				RGP.EN1000.DV1275_JACK2_DRIVE.EOT_POS_READING:=6;	
+				RGP.EN1000.DV1275_JACK2_DRIVE.Max_Following_Position_Error:=0.25;	
+	
+	// Jack 3 
+			//Axis Analog Output Init
+				//RGP.EN1000.DV1301_JACK3_DRIVE.OUT_Analog.Value_Max_Low:=11.0;
+				//RGP.EN1000.DV1301_JACK3_DRIVE.OUT_Analog.Value_Min_Low:=-8.0;
+				//RGP.EN1000.DV1301_JACK3_DRIVE.OUT_Analog.Value_Max:=25.0;
+				//RGP.EN1000.DV1301_JACK3_DRIVE.OUT_Analog.Value_Min:=-25.0;
+				RGP.EN1000.DV1301_JACK3_DRIVE.OUT_Analog.Scale:=-327.67;
+				RGP.EN1000.DV1301_JACK3_DRIVE.OUT_Analog.OUT_CURVE_TYPE:=0;
+			//Axis Feedback Init
+				//RGP.EN1000.DV1301_JACK3_DRIVE.Feedback.Offset:=-343.62;
+				RGP.EN1000.DV1301_JACK3_DRIVE.Feedback.Scale:=-0.000000156776720;//1.0/1048576;
+				RGP.EN1000.DV1301_JACK3_DRIVE.Feedback.Raw_Data_Max:=1048576;
+				RGP.EN1000.DV1301_JACK3_DRIVE.Feedback.Raw_Data_Min:=0;
+				RGP.EN1000.DV1301_JACK3_DRIVE.Feedback.VFgain1:=0.7;
+				RGP.EN1000.DV1301_JACK3_DRIVE.Feedback.Calibration_Position:=0.0;
+			//Axis Closed Loop Init
+				RGP.EN1000.DV1301_JACK3_DRIVE.CL_RUN_Max_Veln:=0.225;
+				RGP.EN1000.DV1301_JACK3_DRIVE.CL_RUN_Max_Velp:=0.225;
+				RGP.EN1000.DV1301_JACK3_DRIVE.CL_RUN_Pgain[1]:=40;
+				RGP.EN1000.DV1301_JACK3_DRIVE.CL_RUN_Dgain[1]:=10;
+				RGP.EN1000.DV1301_JACK3_DRIVE.CL_RUN_Igain[1]:=0.1;
+				RGP.EN1000.DV1301_JACK3_DRIVE.CL_RUN_VFFgain[1]:=20;
+				RGP.EN1000.DV1301_JACK3_DRIVE.CL_RUN_TON.PT := T#1S; 
+				RGP.EN1000.DV1301_JACK3_DRIVE.CL_Vel_Max_Adjust_TON.PT := T#2S;
+				RGP.EN1000.DV1301_JACK3_DRIVE.CL_Enable_Max_Vel_Adjustment := 1; 
+				RGP.EN1000.DV1301_JACK3_DRIVE.Max_Following_Position_Error:=10;
+			//Axis EOT Limits Init
+				RGP.EN1000.DV1301_JACK3_DRIVE.IN_EOT_POS:=0;
+				RGP.EN1000.DV1301_JACK3_DRIVE.IN_EOT_NEG:=0;				
+				RGP.EN1000.DV1301_JACK3_DRIVE.EOT_NEG_READING:=0;
+				RGP.EN1000.DV1301_JACK3_DRIVE.EOT_POS_READING:=6;	
+				RGP.EN1000.DV1301_JACK3_DRIVE.Max_Following_Position_Error:=0.25;	
+									
+//Motion Axis Init: Monitoring Tool 
+	// Z Rotation
+			//Axis Analog Output Init
+				//RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.OUT_Analog.Value_Max_Low:=11.0;
+				//RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.OUT_Analog.Value_Min_Low:=-8.0;
+				//RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.OUT_Analog.Value_Max:=25.0;
+				//RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.OUT_Analog.Value_Min:=-25.0;
+				RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.OUT_Analog.Scale:=-327.67;
+				RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.OUT_Analog.OUT_CURVE_TYPE:=0;
+			//Axis Feedback Init
+				//RGP.EN1000.DV1301_JACK3_DRIVE.Feedback.Offset:=-343.62;
+				RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.Feedback.Scale:=-0.000000156776720;//1.0/1048576;
+				RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.Feedback.Raw_Data_Max:=1048576;
+				RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.Feedback.Raw_Data_Min:=0;
+				RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.Feedback.VFgain1:=0.7;
+				RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.Feedback.Calibration_Position:=0.0;
+			//Axis EOT Limits Init
+				RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.IN_SOFT_EOT_ENABLE:=0;
+				RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.IN_SOFT_EOT_POS:=0;
+				RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.IN_SOFT_EOT_NEG:=0;				
+				RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.EOT_NEG_READING:=0;
+				RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.EOT_POS_READING:=6;	
+				RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.Max_Following_Position_Error:=0.25;			
+		
+]]></ST>
+    </Implementation>
+    <LineIds Name="INIT_VAR">
+      <LineId Id="1176" Count="0" />
+      <LineId Id="3234" Count="0" />
+      <LineId Id="1160" Count="0" />
+      <LineId Id="1163" Count="0" />
+      <LineId Id="1171" Count="1" />
+      <LineId Id="1174" Count="0" />
+      <LineId Id="3266" Count="0" />
+      <LineId Id="1178" Count="1" />
+      <LineId Id="1185" Count="0" />
+      <LineId Id="3233" Count="0" />
+      <LineId Id="3228" Count="3" />
+      <LineId Id="3323" Count="1" />
+      <LineId Id="3232" Count="0" />
+      <LineId Id="3258" Count="0" />
+      <LineId Id="3286" Count="0" />
+      <LineId Id="3321" Count="0" />
+      <LineId Id="3287" Count="3" />
+      <LineId Id="3318" Count="0" />
+      <LineId Id="3320" Count="0" />
+      <LineId Id="3292" Count="0" />
+      <LineId Id="3263" Count="0" />
+      <LineId Id="3297" Count="0" />
+      <LineId Id="3322" Count="0" />
+      <LineId Id="3298" Count="0" />
+      <LineId Id="3293" Count="3" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="2952" Count="14" />
+      <LineId Id="3169" Count="5" />
+      <LineId Id="3019" Count="0" />
+      <LineId Id="3018" Count="0" />
+      <LineId Id="2998" Count="13" />
+      <LineId Id="3163" Count="5" />
+      <LineId Id="3162" Count="0" />
+      <LineId Id="3026" Count="0" />
+      <LineId Id="3047" Count="0" />
+      <LineId Id="3027" Count="13" />
+      <LineId Id="3073" Count="0" />
+      <LineId Id="3042" Count="4" />
+      <LineId Id="2949" Count="0" />
+      <LineId Id="3048" Count="0" />
+      <LineId Id="3050" Count="14" />
+      <LineId Id="3085" Count="9" />
+      <LineId Id="3084" Count="0" />
+      <LineId Id="3065" Count="2" />
+      <LineId Id="3095" Count="0" />
+      <LineId Id="3070" Count="0" />
+      <LineId Id="3049" Count="0" />
+      <LineId Id="3096" Count="0" />
+      <LineId Id="3161" Count="0" />
+      <LineId Id="3097" Count="31" />
+      <LineId Id="3160" Count="0" />
+      <LineId Id="3129" Count="30" />
+      <LineId Id="3071" Count="1" />
+      <LineId Id="3175" Count="0" />
+      <LineId Id="3208" Count="0" />
+      <LineId Id="3178" Count="12" />
+      <LineId Id="3201" Count="0" />
+      <LineId Id="3203" Count="0" />
+      <LineId Id="3207" Count="0" />
+      <LineId Id="3204" Count="2" />
+      <LineId Id="3176" Count="0" />
+      <LineId Id="438" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

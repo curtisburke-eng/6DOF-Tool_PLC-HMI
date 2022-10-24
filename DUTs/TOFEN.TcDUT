@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.0.38">
+  <DUT Name="TOFEN" Id="{718241f7-756b-4fb8-a9ca-a46708cf21de}">
+    <Declaration><![CDATA[TYPE TOFEN :
+STRUCT
+	EN: BOOL:=0; (*Enable Bit*)
+	IN: BOOL:=0; (*Input Trigger*)
+	Timer: TON; (*Internal Timer*)
+	Latch: BOOL:=0; (*Latching bit to track logic*)
+	Q: BOOL:=0; (*Output controlling bit*)
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

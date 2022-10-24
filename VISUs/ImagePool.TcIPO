@@ -1,0 +1,477 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <ImagePool Name="ImagePool" Id="{3a8d1c18-5cf3-4c46-a577-fd6e262b483e}">
+    <XmlArchive>
+      <Data>
+        <o xml:space="preserve" t="ImagePoolObject">
+          <v n="UniqueIdGenerator">"692"</v>
+          <l n="BitmapPool" t="ArrayList" cet="ImagePoolItem">
+            <o>
+              <v n="BitmapID">"IN_BU_300_50"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_BU_300_50.png"</v>
+              <v n="ItemID">12</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_GN_300_50"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_GN_300_50.png"</v>
+              <v n="ItemID">16</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_GY_300_50"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_GY_300_50.png"</v>
+              <v n="ItemID">17</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_RD_300_50"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_RD_300_50.png"</v>
+              <v n="ItemID">18</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_RR_300_50"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_RR_300_50.png"</v>
+              <v n="ItemID">19</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_RY_300_50"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_RY_300_50.png"</v>
+              <v n="ItemID">20</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_YL_300_50"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_YL_300_50.png"</v>
+              <v n="ItemID">21</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_YR_300_50"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_YR_300_50.png"</v>
+              <v n="ItemID">22</v>
+            </o>
+            <o>
+              <v n="BitmapID">"PB_BU_125_100"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\PB_BU_125_100.png"</v>
+              <v n="ItemID">14</v>
+            </o>
+            <o>
+              <v n="BitmapID">"PB_GN_125_100"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\PB_GN_125_100.png"</v>
+              <v n="ItemID">25</v>
+            </o>
+            <o>
+              <v n="BitmapID">"PB_GY_125_100"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\PB_GY_125_100.png"</v>
+              <v n="ItemID">26</v>
+            </o>
+            <o>
+              <v n="BitmapID">"PB_RD_125_100"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\PB_RD_125_100.png"</v>
+              <v n="ItemID">27</v>
+            </o>
+            <o>
+              <v n="BitmapID">"PB_BU_75_75"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\PB_BU_75_75.png"</v>
+              <v n="ItemID">29</v>
+            </o>
+            <o>
+              <v n="BitmapID">"PB_BU_160_75"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\PB_BU_160_75.png"</v>
+              <v n="ItemID">33</v>
+            </o>
+            <o>
+              <v n="BitmapID">"PB_BU_250_75"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\PB_BU_250_75.png"</v>
+              <v n="ItemID">34</v>
+            </o>
+            <o>
+              <v n="BitmapID">"PB_GN_75_75"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\PB_GN_75_75.png"</v>
+              <v n="ItemID">35</v>
+            </o>
+            <o>
+              <v n="BitmapID">"PB_GN_160_75"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\PB_GN_160_75.png"</v>
+              <v n="ItemID">36</v>
+            </o>
+            <o>
+              <v n="BitmapID">"PB_GN_250_75"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\PB_GN_250_75.png"</v>
+              <v n="ItemID">37</v>
+            </o>
+            <o>
+              <v n="BitmapID">"PB_GY_75_75"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\PB_GY_75_75.png"</v>
+              <v n="ItemID">38</v>
+            </o>
+            <o>
+              <v n="BitmapID">"PB_GY_160_75"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\PB_GY_160_75.png"</v>
+              <v n="ItemID">39</v>
+            </o>
+            <o>
+              <v n="BitmapID">"PB_GY_250_75"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\PB_GY_250_75.png"</v>
+              <v n="ItemID">40</v>
+            </o>
+            <o>
+              <v n="BitmapID">"PB_RD_75_75"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\PB_RD_75_75.png"</v>
+              <v n="ItemID">41</v>
+            </o>
+            <o>
+              <v n="BitmapID">"PB_RD_160_75"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\PB_RD_160_75.png"</v>
+              <v n="ItemID">42</v>
+            </o>
+            <o>
+              <v n="BitmapID">"PB_RD_250_75"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\PB_RD_250_75.png"</v>
+              <v n="ItemID">43</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_BU_916_50"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_BU_916_50.png"</v>
+              <v n="ItemID">46</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_BU_200_120"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_BU_200_120.png"</v>
+              <v n="ItemID">44</v>
+            </o>
+            <o>
+              <v n="BitmapID">"background1"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\background3.png"</v>
+              <v n="ItemID">47</v>
+            </o>
+            <o>
+              <v n="BitmapID">"JS1_TOP"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\JS1_TOP.png"</v>
+              <v n="ItemID">51</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_BU_261_277"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_BU_261_277.png"</v>
+              <v n="ItemID">57</v>
+            </o>
+            <o>
+              <v n="BitmapID">"JSL_ISO"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\JSL_ISO.png"</v>
+              <v n="ItemID">60</v>
+            </o>
+            <o>
+              <v n="BitmapID">"JSLL_ISO"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\JSLL_ISO.png"</v>
+              <v n="ItemID">64</v>
+            </o>
+            <o>
+              <v n="BitmapID">"JSR_ISO"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\JSR_ISO.png"</v>
+              <v n="ItemID">65</v>
+            </o>
+            <o>
+              <v n="BitmapID">"JS2_TOP"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\JS2_TOP.png"</v>
+              <v n="ItemID">62</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_CL_261_277"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_CL_261_277.png"</v>
+              <v n="ItemID">68</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_CL_261_361"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_CL_261_361.png"</v>
+              <v n="ItemID">70</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_CL_462_361"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_CL_462_361.png"</v>
+              <v n="ItemID">72</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_CL_261_251"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_CL_261_251.png"</v>
+              <v n="ItemID">74</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_CL_261_277b"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_CL_261_277b.png"</v>
+              <v n="ItemID">76</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_CL_462_361b"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_CL_462_361b.png"</v>
+              <v n="ItemID">78</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_CL_462_361c"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_CL_462_361c.png"</v>
+              <v n="ItemID">82</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_CL_261_277c"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_CL_261_277c.png"</v>
+              <v n="ItemID">80</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_WN_200_120"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_WN_200_120.png"</v>
+              <v n="ItemID">83</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_WN_261_251"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_WN_261_251.png"</v>
+              <v n="ItemID">87</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_WN_261_277"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_WN_261_277.png"</v>
+              <v n="ItemID">88</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_WN_261_361"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_WN_261_361.png"</v>
+              <v n="ItemID">89</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_WN_462_361"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_WN_462_361.png"</v>
+              <v n="ItemID">90</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_WN_462_648"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_WN_462_648.png"</v>
+              <v n="ItemID">85</v>
+            </o>
+            <o>
+              <v n="BitmapID">"Red_x"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\Red_x.png"</v>
+              <v n="ItemID">117</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_WN_200_488"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_WN_200_488.png"</v>
+              <v n="ItemID">119</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_BU_61_40"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_BU_61_40.png"</v>
+              <v n="ItemID">131</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_CL_1024_120"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_CL_1024_120.png"</v>
+              <v n="ItemID">133</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_CL_300_50"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_CL_300_50.png"</v>
+              <v n="ItemID">135</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_WN_200_120b"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_WN_200_120b.png"</v>
+              <v n="ItemID">137</v>
+            </o>
+            <o>
+              <v n="BitmapID">"JS2_TOPb"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\JS2_TOPb.png"</v>
+              <v n="ItemID">290</v>
+            </o>
+            <o>
+              <v n="BitmapID">"PB_GY_75_250"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\PB_GY_75_250.png"</v>
+              <v n="ItemID">292</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_WNC_164_277"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_WNC_164_277.png"</v>
+              <v n="ItemID">564</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_WNC_200_488"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_WNC_200_488.png"</v>
+              <v n="ItemID">634</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_WNC_830_488"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_WNC_830_488.png"</v>
+              <v n="ItemID">636</v>
+            </o>
+            <o>
+              <v n="BitmapID">"JS_FLEFT"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\JS_FLEFT.png"</v>
+              <v n="ItemID">638</v>
+            </o>
+            <o>
+              <v n="BitmapID">"JS_LEFT"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\JS_LEFT.png"</v>
+              <v n="ItemID">640</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_WNC_181_277"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_WNC_181_277.png"</v>
+              <v n="ItemID">642</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_WNC_271_115"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_WNC_271_115.png"</v>
+              <v n="ItemID">646</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_WNC_261_277"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_WNC_261_277.png"</v>
+              <v n="ItemID">647</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_WNC_261_364"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_WNC_261_364.png"</v>
+              <v n="ItemID">648</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_WNC_261_197"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_WNC_261_197.png"</v>
+              <v n="ItemID">649</v>
+            </o>
+            <o>
+              <v n="BitmapID">"JS_RIGHT"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\JS_RIGHT.png"</v>
+              <v n="ItemID">644</v>
+            </o>
+            <o>
+              <v n="BitmapID">"IN_WNC_462_364"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\IN_WNC_462_364.png"</v>
+              <v n="ItemID">650</v>
+            </o>
+            <o>
+              <v n="BitmapID">"RGP ISO"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\RGP ISO.png"</v>
+              <v n="ItemID">652</v>
+            </o>
+            <o>
+              <v n="BitmapID">"HOIST_PIPE"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\HOIST_PIPE.png"</v>
+              <v n="ItemID">654</v>
+            </o>
+            <o>
+              <v n="BitmapID">"HOIST"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\HOIST.png"</v>
+              <v n="ItemID">656</v>
+            </o>
+            <o>
+              <v n="BitmapID">"WELD TOOL"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\WELD TOOL.png"</v>
+              <v n="ItemID">658</v>
+            </o>
+            <o>
+              <v n="BitmapID">"WELD_TOOL"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\WELD_TOOL.png"</v>
+              <v n="ItemID">660</v>
+            </o>
+            <o>
+              <v n="BitmapID">"WELD_CLEAN"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\WELD_CLEAN.png"</v>
+              <v n="ItemID">662</v>
+            </o>
+            <o>
+              <v n="BitmapID">"WJ_TOOL"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\WJ_TOOL.png"</v>
+              <v n="ItemID">664</v>
+            </o>
+            <o>
+              <v n="BitmapID">"DRILL_TOOL"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\DRILL_TOOL.png"</v>
+              <v n="ItemID">666</v>
+            </o>
+            <o>
+              <v n="BitmapID">"WELD_COAT"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\WELD_COAT.png"</v>
+              <v n="ItemID">668</v>
+            </o>
+            <o>
+              <v n="BitmapID">"SURF_PREP"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\SURF_PREP.png"</v>
+              <v n="ItemID">670</v>
+            </o>
+            <o>
+              <v n="BitmapID">"FLJS"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\FLJS.png"</v>
+              <v n="ItemID">672</v>
+            </o>
+            <o>
+              <v n="BitmapID">"LJS"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\LJS.png"</v>
+              <v n="ItemID">674</v>
+            </o>
+            <o>
+              <v n="BitmapID">"RJS"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\RJS.png"</v>
+              <v n="ItemID">676</v>
+            </o>
+            <o>
+              <v n="BitmapID">"grid-lg"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\grid-lg.png"</v>
+              <v n="ItemID">678</v>
+            </o>
+            <o>
+              <v n="BitmapID">"TOOL_DEPLOY"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\TOOL_DEPLOY.png"</v>
+              <v n="ItemID">680</v>
+            </o>
+            <o>
+              <v n="BitmapID">"RGP_Overview"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\RGP_Overview.png"</v>
+              <v n="ItemID">682</v>
+            </o>
+            <o>
+              <v n="BitmapID">"RGP_BASE"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\RGP_BASE.png"</v>
+              <v n="ItemID">684</v>
+            </o>
+            <o>
+              <v n="BitmapID">"RGP_MANIP_L"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\RGP_MANIP_L.png"</v>
+              <v n="ItemID">686</v>
+            </o>
+            <o>
+              <v n="BitmapID">"CAM_ARRAY"</v>
+              <v n="FileID">"5ce3da45-db07-42e7-a21c-a00fff4ed8f6|Pictures\CAM_ARRAY.png"</v>
+              <v n="ItemID">688</v>
+            </o>
+            <o>
+              <v n="BitmapID">""</v>
+              <v n="FileID">""</v>
+              <v n="ItemID">690</v>
+            </o>
+          </l>
+          <v n="GuidInit">{2e46a374-fdb3-4271-b1f6-58fa2647d704}</v>
+          <v n="GuidReInit">{67f09597-9ae3-4292-bf8e-b20df64cc3c0}</v>
+          <v n="GuidExitX">{d68bba47-fbbc-487d-b08d-6d0e829144e5}</v>
+          <v n="ValidIds">true</v>
+        </o>
+      </Data>
+      <TypeList>
+        <Type n="ArrayList">System.Collections.ArrayList</Type>
+        <Type n="Boolean">System.Boolean</Type>
+        <Type n="Guid">System.Guid</Type>
+        <Type n="ImagePoolItem">{215b2719-0347-4e4d-ba85-8bcd66946f66}</Type>
+        <Type n="ImagePoolObject">{bb0b9044-714e-4614-ad3e-33cbdf34d16b}</Type>
+        <Type n="Int32">System.Int32</Type>
+        <Type n="String">System.String</Type>
+      </TypeList>
+    </XmlArchive>
+    <ObjectProperties>
+      <XmlArchive>
+        <Data>
+          <o xml:space="preserve" t="ImagePoolPropertiesObject">
+            <v n="DownloadOnlyUsedImages">false</v>
+            <v n="Internal">false</v>
+            <n n="SymbolTextList" />
+          </o>
+        </Data>
+        <TypeList>
+          <Type n="Boolean">System.Boolean</Type>
+          <Type n="ImagePoolPropertiesObject">{a67e96c6-3fd3-4d25-a9ff-723c6b2f78cb}</Type>
+        </TypeList>
+      </XmlArchive>
+    </ObjectProperties>
+  </ImagePool>
+</TcPlcObject>

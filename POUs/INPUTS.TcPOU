@@ -1,0 +1,381 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <POU Name="INPUTS" Id="{ec4607e6-a585-45f3-bd52-6ea7ddee2e87}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM INPUTS (*: INT*)
+VAR
+
+	EN1000_IO_StatusTON :TON;
+	//NRHMIS_IO_StatusTON :TON;
+	//NRHMI_Heartbeat_TON: TON;
+	//NRHMI_INT: INT:=0;
+	//NRHMI_Heartbeat_Last: BOOL:=0;
+
+	SYSDATA_Heartbeat_TON: TON;
+	SYSDATA_INT: INT:=0;
+	SYSDATA_Heartbeat_Last: BOOL:=0;
+	
+	SYSDATA_Heartbeat_TON2: TON;
+	SYSDATA_INT2: INT:=0;
+	SYSDATA_Heartbeat_Last2: BOOL:=0;
+
+	//DV1501_Manip_Rot_ErrorTON :TON;
+
+	TEMP:UDINT:=0;
+	temp1:REAL:=0;
+	temp2:REAL:=0;
+	
+	PI : REAL := 3.14159;
+	
+END_VAR
+VAR_INPUT
+
+(*
+//NEAR REMOTE HMI STATION I/O	
+	//Communication Status
+		RIO2022_Status AT %I*: BOOL;
+	//Digital Input Module
+		RIO1919_DI1 AT %I*: BOOL; RIO1919_DI2 AT %I*: BOOL; RIO1919_DI3 AT %I*: BOOL; RIO1919_DI4 AT %I*: BOOL; RIO1919_DI5 AT %I*: BOOL; RIO1919_DI6 AT %I*: BOOL; RIO1919_DI7 AT %I*: BOOL; RIO1919_DI8 AT %I*: BOOL;
+	//Analog Input Module
+		RIO1924_AI1 AT %I*: INT; RIO1924_AI2 AT %I*: INT; RIO1924_AI3 AT %I*: INT; RIO1924_AI4 AT %I*: INT;
+		RIO1926_AI1 AT %I*: INT; RIO1926_AI2 AT %I*: INT; RIO1926_AI3 AT %I*: INT; RIO1926_AI4 AT %I*: INT;
+		RIO1928A_AI1 AT %I*: INT; RIO1928A_AI2 AT %I*: INT; RIO1928A_AI3 AT %I*: INT; RIO1928A_AI4 AT %I*: INT;
+	//Subscribe VAR
+		NRHMI_SYS_SUB1 AT %I*: MAIN_P_7;
+*)
+
+//EN1000 
+	//Communication Status
+		//RIO1102_Status AT %I*: BOOL;
+	//Digital Input Module
+		RIO1108_DI1 AT %I*: BOOL; RIO1108_DI2 AT %I*: BOOL; RIO1108_DI3 AT %I*: BOOL; RIO1108_DI4 AT %I*: BOOL; RIO1108_DI5 AT %I*: BOOL; RIO1108_DI6 AT %I*: BOOL; RIO1108_DI7 AT %I*: BOOL; RIO1108_DI8 AT %I*: BOOL;
+		RIO1110_DI1 AT %I*: BOOL; RIO1110_DI2 AT %I*: BOOL; RIO1110_DI3 AT %I*: BOOL; RIO1110_DI4 AT %I*: BOOL; RIO1110_DI5 AT %I*: BOOL; RIO1110_DI6 AT %I*: BOOL; RIO1110_DI7 AT %I*: BOOL; RIO1110_DI8 AT %I*: BOOL;
+		RIO1112_DI1 AT %I*: BOOL; RIO1112_DI2 AT %I*: BOOL; RIO1112_DI3 AT %I*: BOOL; RIO1112_DI4 AT %I*: BOOL; RIO1112_DI5 AT %I*: BOOL; RIO1112_DI6 AT %I*: BOOL; RIO1112_DI7 AT %I*: BOOL; RIO1112_DI8 AT %I*: BOOL;
+		RIO1114_DI1 AT %I*: BOOL; RIO1114_DI2 AT %I*: BOOL; RIO1114_DI3 AT %I*: BOOL; RIO1114_DI4 AT %I*: BOOL; RIO1114_DI5 AT %I*: BOOL;
+	//Analog Input Module
+		RIO1116_AI1 AT %I*: INT; RIO1116_AI2 AT %I*: INT; 
+	
+	// Resitor Bridge Module
+		RIO1125_AI1 AT %I*: INT;
+		RIO1127_AI1 AT %I*: INT;
+		RIO1129_AI1 AT %I*: INT;
+	
+	//Servo Module (Resolver Input)
+		RIO1137_AI1 AT %I*: UDINT;
+		
+	//Stepper Motor Modules
+		RIO1135_ERROR AT %I*: BOOL;
+		
+	//Subscribe VAR
+		//NRHMI_SUB AT %I*: NR_HMI_P_1;
+
+END_VAR
+VAR_OUTPUT
+	
+END_VAR
+
+VAR_IN_OUT
+	RGP: System;
+	TS_IN: Touchscreen;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF (INPUTS.RGP.PROG.LAPTOP_TEST_ENABLE=0) THEN
+//NEAR REMOTE HMI STATION INPUTS
+	(*	IF (RGP.PROG.Program_Location = 1) THEN 
+			RGP.EN1900_NRHMI.PB1905_EMER_STOP:=RIO1919_DI1;
+			RGP.EN1900_NRHMI.SS1940_DISABLE_NRCONTROL:=RIO1919_DI3;
+			RGP.EN1900_NRHMI.SS1940_REQUEST_NRCONTROL:=RIO1919_DI4;
+			
+			NRHMIS_IO_StatusTON.PT:=T#0MS;
+			IF ( NOT RIO2022_Status) THEN
+				NRHMIS_IO_StatusTON.IN:=1;
+			ELSE
+				NRHMIS_IO_StatusTON.IN:=0;
+			END_IF
+			RGP.EN1900_NRHMI.EN1900_HEALTHY := NRHMIS_IO_StatusTON.Q;
+			//NRHMIS_IO_StatusTON();
+	
+			RGP.EN1900_NRHMI.DV1917_JS_X_AXIS.SIGNAL.Raw_Data := INT_TO_REAL(RIO1928A_AI2);
+			Joystick(JS:=RGP.EN1900_NRHMI.DV1917_JS_X_AXIS);
+			RGP.EN1900_NRHMI.DV1917_JS_Y_AXIS.SIGNAL.Raw_Data := -INT_TO_REAL(RIO1928A_AI1);
+			Joystick(JS:=RGP.EN1900_NRHMI.DV1917_JS_Y_AXIS);
+			RGP.EN1900_NRHMI.DV1917_JS_Z_AXIS.SIGNAL.Raw_Data := INT_TO_REAL(RIO1924_AI4);
+			Joystick(JS:=RGP.EN1900_NRHMI.DV1917_JS_Z_AXIS);
+			
+			RGP.EN1900_NRHMI.DV1927_JS_X_AXIS.SIGNAL.Raw_Data := INT_TO_REAL(RIO1924_AI2);
+			Joystick(JS:=RGP.EN1900_NRHMI.DV1927_JS_X_AXIS);
+			RGP.EN1900_NRHMI.DV1927_JS_Y_AXIS.SIGNAL.Raw_Data := -INT_TO_REAL(RIO1924_AI1);
+			Joystick(JS:=RGP.EN1900_NRHMI.DV1927_JS_Y_AXIS);
+			RGP.EN1900_NRHMI.DV1927_JS_Z_AXIS.SIGNAL.Raw_Data := INT_TO_REAL(RIO1924_AI3);
+			Joystick(JS:=RGP.EN1900_NRHMI.DV1927_JS_Z_AXIS);
+			
+			RGP.EN1900_NRHMI.DV1938_JS_X_AXIS.SIGNAL.Raw_Data := INT_TO_REAL(RIO1926_AI2);
+			Joystick(JS:=RGP.EN1900_NRHMI.DV1938_JS_X_AXIS);
+			RGP.EN1900_NRHMI.DV1938_JS_Y_AXIS.SIGNAL.Raw_Data := -INT_TO_REAL(RIO1926_AI1);
+			Joystick(JS:=RGP.EN1900_NRHMI.DV1938_JS_Y_AXIS);
+			RGP.EN1900_NRHMI.DV1938_JS_Z_AXIS.SIGNAL.Raw_Data := INT_TO_REAL(RIO1926_AI3);
+			Joystick(JS:=RGP.EN1900_NRHMI.DV1938_JS_Z_AXIS);
+	
+			//SYSTEM Data Monitor
+				SYSDATA_Heartbeat_TON.PT := T#400MS;
+				IF (SYSDATA_Heartbeat_Last <> NRHMI_SYS_SUB1.Heartbeat) THEN
+					SYSDATA_Heartbeat_TON.IN:=0;
+					IF (SYSDATA_INT < 10) THEN
+						SYSDATA_INT := SYSDATA_INT+1;				
+					ELSE
+						RGP.PROG.HMI_FRMDATA_Heartbeat_Healthy:=1;
+					END_IF
+					SYSDATA_Heartbeat_Last := NRHMI_SYS_SUB1.Heartbeat;
+				ELSE
+					SYSDATA_Heartbeat_TON.IN:=1;
+				END_IF
+				IF (SYSDATA_Heartbeat_TON.Q) THEN
+					RGP.PROG.HMI_FRMDATA_Heartbeat_Healthy:=0;
+					SYSDATA_INT := 0;				
+				END_IF
+				SYSDATA_Heartbeat_TON();
+	
+				SYSDATA_Heartbeat_TON2.PT := T#400MS;
+				//IF (SYSDATA_Heartbeat_Last2 <> NRHMI_SYS_SUB2.Heartbeat) THEN
+				//	SYSDATA_Heartbeat_TON2.IN:=0;
+				//	IF (SYSDATA_INT2 < 10) THEN
+				//		SYSDATA_INT2 := SYSDATA_INT2+1;				
+				//	ELSE
+				//		RGP.PROG.HMI_FRMDATA2_Heartbeat_Healthy:=1;
+				//	END_IF
+				//	SYSDATA_Heartbeat_Last2 := NRHMI_SYS_SUB2.Heartbeat;
+				//ELSE
+				//	SYSDATA_Heartbeat_TON2.IN:=1;
+				//END_IF
+				//IF (SYSDATA_Heartbeat_TON2.Q) THEN
+				//	RGP.PROG.HMI_FRMDATA2_Heartbeat_Healthy:=0;
+				//END_IF
+				//SYSDATA_Heartbeat_TON2();
+	
+			MAIN_SUB_TO_STR(RGP,NRHMI_SYS_SUB1, TS_IN);
+	*)
+// ELSIF (RGP.PROG.Program_Location = 0) THEN //EN1000		// Uncomment if using Remote HMI
+	
+	IF (RGP.PROG.Program_Location = 0) THEN //EN1000
+
+		// E-Stop & Safety
+			RGP.EN1000.DV1052_SMR:=RIO1114_DI5;
+		
+		// Selector Switches		
+			RGP.EN1000.SS1338_POS_TOOL_ROTZ_POS := RIO1112_DI1;
+			RGP.EN1000.SS1338_POS_TOOL_ROTZ_NEG := RIO1112_DI2;
+			RGP.EN1000.SS1157_TRANSX_POS := RIO1108_DI1;
+			RGP.EN1000.SS1157_TRANSX_NEG := RIO1108_DI2;
+			RGP.EN1000.SS1182_TRANSY_POS := RIO1108_DI3;
+			RGP.EN1000.SS1182_TRANSY_NEG := RIO1108_DI4;
+			RGP.EN1000.SS1264_ALL_JACKS_TRANSZ_POS := RIO1108_DI5;
+			RGP.EN1000.SS1264_ALL_JACKS_TRANSZ_NEG := RIO1108_DI6;
+			RGP.EN1000.SS1307_JACK1_TRANSZ_POS := RIO1110_DI3;
+			RGP.EN1000.SS1307_JACK1_TRANSZ_NEG := RIO1110_DI4;
+			RGP.EN1000.SS1312_JACK2_TRANSZ_POS := RIO1110_DI5;
+			RGP.EN1000.SS1312_JACK2_TRANSZ_NEG := RIO1110_DI6;
+			RGP.EN1000.SS1324_JACK3_TRANSZ_POS := RIO1110_DI7;
+			RGP.EN1000.SS1324_JACK3_TRANSZ_NEG := RIO1110_DI8;
+			RGP.EN1000.SS1273_TILT_ROTX_POS := RIO1108_DI7;
+			RGP.EN1000.SS1273_TILT_ROTX_NEG := RIO1108_DI8;
+			RGP.EN1000.SS1282_TILT_ROTY_POS := RIO1110_DI1;
+			RGP.EN1000.SS1282_TILT_ROTY_NEG := RIO1110_DI2;
+			RGP.EN1000.SS1457_MON_TOOL_ROTZ_POS := RIO1114_DI3;
+			RGP.EN1000.SS1457_MON_TOOL_ROTZ_NEG := RIO1114_DI4;
+				
+		// Limit Switches (EOT)
+			RGP.EN1000.LS1352_JACK1_EOT_POS := NOT RIO1112_DI3;
+			RGP.EN1000.DV1151_JACK1_DRIVE.IN_EOT_POS := RGP.EN1000.LS1352_JACK1_EOT_POS;
+			RGP.EN1000.LS1354_JACK1_EOT_NEG := NOT RIO1112_DI4;
+			RGP.EN1000.DV1151_JACK1_DRIVE.IN_EOT_NEG := RGP.EN1000.LS1354_JACK1_EOT_NEG; 
+			
+			RGP.EN1000.LS1357_JACK2_EOT_POS := NOT RIO1112_DI5;
+			RGP.EN1000.DV1275_JACK2_DRIVE.IN_EOT_POS := RGP.EN1000.LS1357_JACK2_EOT_POS;
+			RGP.EN1000.LS1359_JACK2_EOT_NEG := NOT RIO1112_DI6;
+			RGP.EN1000.DV1275_JACK2_DRIVE.IN_EOT_NEG := RGP.EN1000.LS1359_JACK2_EOT_NEG;
+	 
+			RGP.EN1000.LS1362_JACK3_EOT_POS := NOT RIO1112_DI7;
+			RGP.EN1000.DV1301_JACK3_DRIVE.IN_EOT_POS := RGP.EN1000.LS1362_JACK3_EOT_POS;
+			RGP.EN1000.LS1364_JACK3_EOT_NEG := NOT RIO1112_DI8;
+			RGP.EN1000.DV1301_JACK3_DRIVE.IN_EOT_NEG := RGP.EN1000.LS1364_JACK3_EOT_NEG;
+			
+			RGP.EN1000.LS1367_POS_TOOL_ROTZ_EOT_POS := NOT RIO1114_DI1; // 0 SIGNAL MEANS EOT HAS BEEN TRIPPED
+			RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.IN_EOT_POS := RGP.EN1000.LS1367_POS_TOOL_ROTZ_EOT_POS;
+			RGP.EN1000.LS1369_POS_TOOL_ROTZ_EOT_NEG := NOT RIO1114_DI2;
+			RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.IN_EOT_NEG := RGP.EN1000.LS1369_POS_TOOL_ROTZ_EOT_NEG;				
+			
+		// Tilt Sensors	
+			RGP.EN1000.DV1390_TILT_SENSOR1.Raw_Data := INT_TO_REAL(RIO1116_AI1);  
+			Analog_In(AI:=RGP.EN1000.DV1390_TILT_SENSOR1);
+			
+			RGP.EN1000.DV1396_TILT_SENSOR2.Raw_Data := INT_TO_REAL(RIO1116_AI2);  
+			Analog_In(AI:=RGP.EN1000.DV1396_TILT_SENSOR2);
+			
+		// Load Cells
+			RGP.EN1000.DV1375_LOAD_CELL_JACK1_FZ.Raw_Data := INT_TO_REAL(RIO1125_AI1);
+			Analog_In(AI:=RGP.EN1000.DV1375_LOAD_CELL_JACK1_FZ);
+			
+			RGP.EN1000.DV1379_LOAD_CELL_JACK2_FZ.Raw_Data := INT_TO_REAL(RIO1127_AI1);
+			Analog_In(AI:=RGP.EN1000.DV1379_LOAD_CELL_JACK2_FZ);
+			
+			RGP.EN1000.DV1385_LOAD_CELL_JACK3_FZ.Raw_Data := INT_TO_REAL(RIO1129_AI1);
+			Analog_In(AI:=RGP.EN1000.DV1385_LOAD_CELL_JACK3_FZ);
+		
+		// Resolvers
+			// X-TRANS			//FIXME: NEEDED FOR DISPLAY??
+				//TEMP:= ??? ; TEMP.20:=0; TEMP.21:=0; TEMP.22:=0; TEMP.23:=0; TEMP.24:=0; TEMP.25:=0; TEMP.26:=0; TEMP.27:=0; TEMP.28:=0; TEMP.29:=0; TEMP.30:=0; TEMP.31:=0;
+				//RGP.EN1000.DV1150_TRANSX_DRIVE.Feedback.Raw_Data := UDINT_TO_REAL(TEMP);
+				//Axis_Pos(RGP.EN1000.DV1150_TRANSX_DRIVE.Feedback,RGP.PROG.delT,RGP.PROG.calculate);
+			
+			// Y-TRANS			//FIXME: NEEDED FOR DISPLAY??
+				//TEMP:= ??? ; TEMP.20:=0; TEMP.21:=0; TEMP.22:=0; TEMP.23:=0; TEMP.24:=0; TEMP.25:=0; TEMP.26:=0; TEMP.27:=0; TEMP.28:=0; TEMP.29:=0; TEMP.30:=0; TEMP.31:=0;
+				//RGP.EN1000.DV1175_TRANSY_DRIVE.Feedback.Raw_Data := UDINT_TO_REAL(TEMP);
+				//Axis_Pos(RGP.EN1000.DV1175_TRANSY_DRIVE.Feedback,RGP.PROG.delT,RGP.PROG.calculate);
+				
+			// JACK 1
+				//TEMP:= ??? ; TEMP.20:=0; TEMP.21:=0; TEMP.22:=0; TEMP.23:=0; TEMP.24:=0; TEMP.25:=0; TEMP.26:=0; TEMP.27:=0; TEMP.28:=0; TEMP.29:=0; TEMP.30:=0; TEMP.31:=0;
+				//RGP.EN1000.DV1151_JACK1_DRIVE.Feedback.Raw_Data := UDINT_TO_REAL(TEMP);
+				Axis_Pos(RGP.EN1000.DV1151_JACK1_DRIVE.Feedback,RGP.PROG.delT,RGP.PROG.calculate);
+			
+			// JACK 2
+				//TEMP:= ??? ; TEMP.20:=0; TEMP.21:=0; TEMP.22:=0; TEMP.23:=0; TEMP.24:=0; TEMP.25:=0; TEMP.26:=0; TEMP.27:=0; TEMP.28:=0; TEMP.29:=0; TEMP.30:=0; TEMP.31:=0;
+				//RGP.EN1000.DV1275_JACK2_DRIVE.Feedback.Raw_Data := UDINT_TO_REAL(TEMP);
+				Axis_Pos(RGP.EN1000.DV1275_JACK2_DRIVE.Feedback,RGP.PROG.delT,RGP.PROG.calculate);
+			
+			// JACK 3
+				//TEMP:= ??? ; TEMP.20:=0; TEMP.21:=0; TEMP.22:=0; TEMP.23:=0; TEMP.24:=0; TEMP.25:=0; TEMP.26:=0; TEMP.27:=0; TEMP.28:=0; TEMP.29:=0; TEMP.30:=0; TEMP.31:=0;
+				//RGP.EN1000.DV1301_JACK3_DRIVE.Feedback.Raw_Data := UDINT_TO_REAL(TEMP);
+				Axis_Pos(RGP.EN1000.DV1301_JACK3_DRIVE.Feedback,RGP.PROG.delT,RGP.PROG.calculate);
+			
+			// POS TOOL ROT-Z
+				//TEMP:= ??? ; TEMP.20:=0; TEMP.21:=0; TEMP.22:=0; TEMP.23:=0; TEMP.24:=0; TEMP.25:=0; TEMP.26:=0; TEMP.27:=0; TEMP.28:=0; TEMP.29:=0; TEMP.30:=0; TEMP.31:=0;
+				//RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.Feedback.Raw_Data := UDINT_TO_REAL(TEMP); 
+				Axis_Pos(RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.Feedback,RGP.PROG.delT,RGP.PROG.calculate);
+			
+			// MON TOOL ROT-Z
+				TEMP:=RIO1137_AI1; TEMP.20:=0; TEMP.21:=0; TEMP.22:=0; TEMP.23:=0; TEMP.24:=0; TEMP.25:=0; TEMP.26:=0; TEMP.27:=0; TEMP.28:=0; TEMP.29:=0; TEMP.30:=0; TEMP.31:=0;
+				RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.Feedback.Raw_Data := UDINT_TO_REAL(TEMP);  
+				Axis_Pos(RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.Feedback,RGP.PROG.delT,RGP.PROG.calculate);
+						
+		// Tilt Control
+			// Jack's Angle about Z
+		 		RGP.PROG.JACK1_ANGLE_ABOUT_Z := 0;					// FIXME: CONVERT RESOLVER COUNTS TO DEGREE VALUE
+				RGP.PROG.JACK2_ANGLE_ABOUT_Z := RGP.PROG.JACK1_ANGLE_ABOUT_Z + 120;
+				RGP.PROG.JACK3_ANGLE_ABOUT_Z := RGP.PROG.JACK1_ANGLE_ABOUT_Z + 240;
+							
+			// X-Position  
+				RGP.PROG.JACK1_X_POSITION := RGP.PROG.POS_TOOL_RADIUS*COS(RGP.PROG.JACK1_ANGLE_ABOUT_Z/(180*PI));
+				RGP.PROG.JACK2_X_POSITION := RGP.PROG.POS_TOOL_RADIUS*COS(RGP.PROG.JACK2_ANGLE_ABOUT_Z/(180*PI));
+				RGP.PROG.JACK3_X_POSITION := RGP.PROG.POS_TOOL_RADIUS*COS(RGP.PROG.JACK3_ANGLE_ABOUT_Z/(180*PI));
+			
+			// Y-Position 
+				RGP.PROG.JACK1_Y_POSITION := RGP.PROG.POS_TOOL_RADIUS*SIN(RGP.PROG.JACK1_ANGLE_ABOUT_Z/(180*PI));
+				RGP.PROG.JACK2_Y_POSITION := RGP.PROG.POS_TOOL_RADIUS*SIN(RGP.PROG.JACK2_ANGLE_ABOUT_Z/(180*PI));
+				RGP.PROG.JACK3_Y_POSITION := RGP.PROG.POS_TOOL_RADIUS*SIN(RGP.PROG.JACK3_ANGLE_ABOUT_Z/(180*PI));
+				
+			// Z-Position 
+				RGP.PROG.JACK1_Z_POSITION := RGP.EN1000.DV1151_JACK1_DRIVE.Feedback.Position;
+				RGP.PROG.JACK2_Z_POSITION := RGP.EN1000.DV1275_JACK2_DRIVE.Feedback.Position;
+				RGP.PROG.JACK3_Z_POSITION := RGP.EN1000.DV1301_JACK3_DRIVE.Feedback.Position;		
+
+	END_IF
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="INPUTS">
+      <LineId Id="3" Count="0" />
+      <LineId Id="3017" Count="0" />
+      <LineId Id="75" Count="0" />
+      <LineId Id="1263" Count="0" />
+      <LineId Id="799" Count="0" />
+      <LineId Id="803" Count="0" />
+      <LineId Id="800" Count="0" />
+      <LineId Id="804" Count="7" />
+      <LineId Id="801" Count="0" />
+      <LineId Id="814" Count="0" />
+      <LineId Id="816" Count="4" />
+      <LineId Id="815" Count="0" />
+      <LineId Id="2173" Count="12" />
+      <LineId Id="2187" Count="0" />
+      <LineId Id="108" Count="14" />
+      <LineId Id="2266" Count="0" />
+      <LineId Id="123" Count="18" />
+      <LineId Id="845" Count="0" />
+      <LineId Id="144" Count="0" />
+      <LineId Id="844" Count="0" />
+      <LineId Id="145" Count="0" />
+      <LineId Id="2758" Count="0" />
+      <LineId Id="2757" Count="0" />
+      <LineId Id="2798" Count="0" />
+      <LineId Id="2791" Count="0" />
+      <LineId Id="2797" Count="0" />
+      <LineId Id="846" Count="0" />
+      <LineId Id="2790" Count="0" />
+      <LineId Id="2783" Count="0" />
+      <LineId Id="2760" Count="16" />
+      <LineId Id="2779" Count="1" />
+      <LineId Id="2111" Count="0" />
+      <LineId Id="2789" Count="0" />
+      <LineId Id="2800" Count="0" />
+      <LineId Id="2807" Count="0" />
+      <LineId Id="2801" Count="0" />
+      <LineId Id="2808" Count="1" />
+      <LineId Id="2802" Count="0" />
+      <LineId Id="2810" Count="0" />
+      <LineId Id="2803" Count="0" />
+      <LineId Id="2811" Count="1" />
+      <LineId Id="2804" Count="0" />
+      <LineId Id="2813" Count="0" />
+      <LineId Id="2805" Count="0" />
+      <LineId Id="2817" Count="0" />
+      <LineId Id="2814" Count="0" />
+      <LineId Id="2806" Count="0" />
+      <LineId Id="2818" Count="2" />
+      <LineId Id="2816" Count="0" />
+      <LineId Id="2124" Count="0" />
+      <LineId Id="2126" Count="1" />
+      <LineId Id="2821" Count="2" />
+      <LineId Id="2825" Count="0" />
+      <LineId Id="2793" Count="0" />
+      <LineId Id="2826" Count="0" />
+      <LineId Id="2837" Count="0" />
+      <LineId Id="2840" Count="0" />
+      <LineId Id="2830" Count="0" />
+      <LineId Id="2842" Count="0" />
+      <LineId Id="2850" Count="0" />
+      <LineId Id="2843" Count="0" />
+      <LineId Id="2846" Count="1" />
+      <LineId Id="2833" Count="0" />
+      <LineId Id="3068" Count="1" />
+      <LineId Id="2925" Count="0" />
+      <LineId Id="3052" Count="1" />
+      <LineId Id="3056" Count="0" />
+      <LineId Id="3066" Count="1" />
+      <LineId Id="3054" Count="1" />
+      <LineId Id="3031" Count="0" />
+      <LineId Id="3064" Count="1" />
+      <LineId Id="3063" Count="0" />
+      <LineId Id="3041" Count="0" />
+      <LineId Id="3043" Count="0" />
+      <LineId Id="3061" Count="1" />
+      <LineId Id="3038" Count="0" />
+      <LineId Id="3042" Count="0" />
+      <LineId Id="3044" Count="0" />
+      <LineId Id="3059" Count="1" />
+      <LineId Id="3039" Count="1" />
+      <LineId Id="3045" Count="0" />
+      <LineId Id="3057" Count="1" />
+      <LineId Id="3046" Count="1" />
+      <LineId Id="3051" Count="0" />
+      <LineId Id="3048" Count="2" />
+      <LineId Id="3033" Count="0" />
+      <LineId Id="2927" Count="1" />
+      <LineId Id="3018" Count="2" />
+      <LineId Id="2932" Count="0" />
+      <LineId Id="2934" Count="8" />
+      <LineId Id="3026" Count="4" />
+      <LineId Id="365" Count="0" />
+      <LineId Id="387" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

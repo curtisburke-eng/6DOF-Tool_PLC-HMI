@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <POU Name="OUTPUTS" Id="{24c6c2a0-8ab5-4d94-bcef-4cdba1c5df5a}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Outputs (*: INT*)
+VAR
+	OUT_Enable: INT;
+END_VAR
+
+VAR_INPUT
+	TS_IN : Touchscreen;
+END_VAR
+
+VAR_OUTPUT
+(* //NEAR REMOTE HMI STATION Outputs	
+	//Analog Output Modules
+		RIO1921_AO1 AT %Q*: INT; RIO1921_AO2 AT %Q*: INT; RIO1921_AO3 AT %Q*: INT; RIO1921_AO4 AT %Q*: INT; RIO1921_AO5 AT %Q*: INT; RIO1921_AO6 AT %Q*: INT; RIO1921_AO7 AT %Q*: INT; RIO1921_AO8 AT %Q*: INT;
+	//Publish VAR
+		NRHMI_SUB AT %Q*:NR_HMI_P_1;
+*)
+
+//EN10000 Service Cart Outputs
+	//Digital Output Modules
+		RIO1118_DO1 AT %Q*: BOOL; RIO1118_DO2 AT %Q*: BOOL; RIO1118_DO3 AT %Q*: BOOL; RIO1118_DO4 AT %Q*: BOOL; RIO1118_DO5 AT %Q*: BOOL; RIO1118_DO6 AT %Q*: BOOL; RIO1118_DO7 AT %Q*: BOOL; RIO1118_DO8 AT %Q*: BOOL;
+	
+	//Stepper Motor Modules
+		//RIO1135
+			RIO1135_EN AT %Q*: BOOL;
+			RIO1135_VELOCITY  AT %Q*: INT;
+
+	//Published Variables
+		//MAIN_RGP_PUB1 AT %Q*: MAIN_P_7;
+		
+END_VAR
+
+VAR_IN_OUT
+	RGP: System;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF (RGP.PROG.Program_Location = 0) THEN 	// EN1000
+(*	// HMI Alarm
+	IF (RGP.PROG.HMI_ACTIVE_LOC=1 AND TS_IN.Station_Active<>0) THEN
+		RGP.EN1000.DV1077_AUDIBLE_ALARM.Value := RGP.ACTIVE_HMI.AUDIBLE_ALARM.Value;
+	ELSE
+		RGP.EN1000.DV1077_AUDIBLE_ALARM.Value := 0;
+	END_IF
+*)
+
+	RIO1118_DO1 := RGP.EN1000.DV1150_TRANSX_DRIVE.OUT_Enable;
+	RIO1118_DO2 := RGP.EN1000.DV1175_TRANSY_DRIVE.OUT_Enable;
+	RIO1118_DO3 := RGP.EN1000.DV1151_JACK1_DRIVE.OUT_Enable;
+	RIO1118_DO4 := RGP.EN1000.DV1275_JACK2_DRIVE.OUT_Enable;
+	RIO1118_DO5 := RGP.EN1000.DV1301_JACK3_DRIVE.OUT_Enable;
+	RIO1118_DO6 := RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.OUT_Enable;
+	
+	//RIO1121 Stepper Output
+		RIO1135_EN := RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.OUT_Enable;
+		RIO1135_VELOCITY := REAL_TO_INT(RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.OUT_Analog.Data_Out);
+	
+(*	//System Status Communications
+		MAIN_STR_TO_SUB(Outputs.RGP,MAIN_RGP_PUB1);
+		IF (MAIN_RGP_PUB1.Heartbeat=0) THEN
+			MAIN_RGP_PUB1.Heartbeat:=1;
+		ELSE
+			MAIN_RGP_PUB1.Heartbeat:=0;
+		END_IF
+*)
+	
+(*		// Main PUB 2
+		IF (MAIN_RGP_PUB2.Heartbeat=0) THEN
+			MAIN_RGP_PUB2.Heartbeat:=1;
+		ELSE
+			MAIN_RGP_PUB2.Heartbeat:=0;
+		END_IF
+*)	
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="OUTPUTS">
+      <LineId Id="1740" Count="1" />
+      <LineId Id="504" Count="4" />
+      <LineId Id="1746" Count="0" />
+      <LineId Id="1323" Count="0" />
+      <LineId Id="1328" Count="1" />
+      <LineId Id="1748" Count="3" />
+      <LineId Id="1509" Count="0" />
+      <LineId Id="1526" Count="0" />
+      <LineId Id="1532" Count="2" />
+      <LineId Id="569" Count="6" />
+      <LineId Id="1754" Count="1" />
+      <LineId Id="1752" Count="0" />
+      <LineId Id="576" Count="3" />
+      <LineId Id="1223" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

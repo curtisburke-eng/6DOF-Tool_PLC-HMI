@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.12">
+  <POU Name="Analog_Out" Id="{d1cfccca-eb47-43e3-98d6-215ba3657c34}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION Analog_Out : INT
+
+VAR_IN_OUT
+	AO: Analog_Out_Var;
+END_VAR
+
+VAR
+	//Temp:REAL:=0;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* Calculates an analog input*)
+IF (AO.Out_Type = 0) THEN
+	AO.Data_Out := (AO.Value * AO.Scale + AO.Offset);
+ELSIF (AO.Out_Type = 1) THEN //-10v to 10v signal with deadband in the middle, assumes -100 to 100 input
+	
+	IF (AO.OUT_CURVE_TYPE=1) THEN
+		IF (AO.Value>=0.0001) THEN
+			IF (AO.Value>100) THEN
+				AO.Value:=100;
+			ELSE
+				AO.Value:= LREAL_TO_REAL((-0.0089*EXPT(AO.Value,2)+1.868*AO.Value)*1.0);
+				//AO.Value:=(0.0086*EXPT(AO.Value,2)+0.0936*AO.Value)*1.0;
+			END_IF
+		ELSE
+			IF (AO.Value<-100) THEN
+				AO.Value:=-100;
+			ELSE
+				AO.Value := ABS(AO.Value);
+				AO.Value:=LREAL_TO_REAL((-0.0089*EXPT(AO.Value,2)+1.868*AO.Value)*-1.0);
+			END_IF
+		END_IF
+	END_IF
+
+	IF (AO.Value>=0.0001) THEN
+		IF (AO.Value>100) THEN
+			AO.Value:=100;
+		END_IF
+		AO.Value:=AO.Value_Max_Low + AO.Value/100*(AO.Value_Max-AO.Value_Max_Low);
+	ELSIF (AO.Value<=-0.0001) THEN
+		IF (AO.Value<-100) THEN
+			AO.Value:=-100;
+		END_IF
+		AO.Value:=AO.Value_Min_Low + AO.Value/-100*(AO.Value_Min-AO.Value_Min_Low);
+	ELSE
+		AO.Value:=0.0;
+	END_IF
+	
+	AO.Data_Out := (AO.Value * AO.Scale + AO.Offset);
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="Analog_Out">
+      <LineId Id="3" Count="6" />
+      <LineId Id="11" Count="2" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="14" Count="2" />
+      <LineId Id="18" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="23" Count="18" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

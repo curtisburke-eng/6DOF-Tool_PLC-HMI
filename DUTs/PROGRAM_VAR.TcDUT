@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <DUT Name="PROGRAM_VAR" Id="{bc90a417-c1a4-43e9-b910-95aaf4cfd965}">
+    <Declaration><![CDATA[TYPE PROGRAM_VAR :
+STRUCT
+
+	VAR_HMI_CONTROL_TRANSFER:BOOL; 		(* Bit to track the transfer of control from remote to local *)
+	VAR_Remote_HMI_Timer:TOFEN; 		(* Remote HMI Timer *)
+	VAR_Control_Input:BOOL; 			(* Control Input Active *)
+
+//Alarm and warning variables
+		Alarm_Warn_Init:BOOL:=0;
+		Alarms: ARRAY [1..100] OF ALARM_TYPE;
+		Warning: ARRAY [1..200] OF ALARM_TYPE;
+		Alarm_Present: BOOL;
+		AlarmState_1_16: UINT;
+		AlarmState_17_32: UINT;
+		AlarmState_33_48: UINT;
+		AlarmState_49_64: UINT;
+		AlarmState_65_80: UINT;
+		AlarmState_81_96: UINT;
+		AlarmState_97_112: UINT;
+		WarningState_1_16: UINT;
+		WarningState_17_32: UINT;
+		WarningState_33_48: UINT;
+		WarningState_49_64: UINT;
+		WarningState_65_80: UINT;
+		WarningState_81_96: UINT;
+		WarningState_97_112: UINT;
+		WarningState_113_128: UINT;
+		WarningState_129_144: UINT;
+		WarningState_145_160: UINT;
+		WarningState_161_176: UINT;
+		WarningState_177_192: UINT;
+		WarningState_193_208: UINT;
+		Old_AlarmState_1_16: UINT;
+		Old_AlarmState_17_32: UINT;
+		Old_AlarmState_33_48: UINT;
+		Old_AlarmState_49_64: UINT;
+		Old_AlarmState_65_80: UINT;
+		Old_AlarmState_81_96: UINT;
+		Old_AlarmState_97_112: UINT;
+		Old_WarningState_1_16: UINT;
+		Old_WarningState_17_32: UINT;
+		Old_WarningState_33_48: UINT;
+		Old_WarningState_49_64: UINT;
+		Old_WarningState_65_80: UINT;
+		Old_WarningState_81_96: UINT;
+		Old_WarningState_97_112: UINT;
+		Old_WarningState_113_128: UINT;
+		Old_WarningState_129_144: UINT;
+		Old_WarningState_145_160: UINT;
+		Old_WarningState_161_176: UINT;
+		Old_WarningState_177_192: UINT;
+		Old_WarningState_193_208: UINT;
+		Alarm_Warning_Change: BOOL;
+	//HMI_Sounder_Control: Alarm_Sounder;
+		
+//HMI_Control_Management Variables
+	ACTIVE_HMI_LAST_SCREEN:INT:=0;
+	ACTIVE_HMI_P53_LAST_MODE:INT:=0;
+		
+	FC_OVERRIDE : BOOL;
+	FC_OVERRIDE_TON: TON;
+	
+	// For tilt about x and y axes 
+	USE_BASE_PLATE_XY : BOOL := 0;
+		
+//Axis Control Inputs
+	//Enable
+		TRANSX_POS_EN : BOOL;
+		TRANSX_NEG_EN : BOOL;
+		TRANSY_POS_EN : BOOL;
+		TRANSY_NEG_EN : BOOL;
+		POS_TOOL_ROTZ_POS_EN : BOOL;
+		POS_TOOL_ROTZ_NEG_EN : BOOL;
+		JACK1_POS_EN : BOOL;
+		JACK1_NEG_EN : BOOL;
+		JACK2_POS_EN : BOOL;
+		JACK2_NEG_EN : BOOL;
+		JACK3_POS_EN : BOOL;
+		JACK3_NEG_EN : BOOL;
+		MON_TOOL_ROTZ_POS_EN : BOOL;
+		MON_TOOL_ROTZ_NEG_EN : BOOL;
+	
+	//Speed
+		TRANSX_SPEED : INT;
+		TRANSY_SPEED : INT;
+		POS_TOOL_ROTZ_SPEED : INT;
+		All_JACKS_SPEED : INT;
+		JACK1_SPEED : INT;
+		JACK2_SPEED : INT;
+		JACK3_SPEED : INT;
+		MON_TOOL_ROTZ_SPEED : INT;	
+		
+	//Tilt Calcualtion
+		JACK1_ANGLE_ABOUT_Z : REAL;
+		JACK1_X_POSITION : REAL;
+		JACK1_Y_POSITION : REAL;
+		JACK1_Z_POSITION : REAL;
+		
+		JACK2_ANGLE_ABOUT_Z : REAL;
+		JACK2_X_POSITION : REAL;
+		JACK2_Y_POSITION : REAL;
+		JACK2_Z_POSITION : REAL;
+		
+		JACK3_ANGLE_ABOUT_Z : REAL;
+		JACK3_X_POSITION : REAL;
+		JACK3_Y_POSITION : REAL;
+		JACK3_Z_POSITION : REAL;
+				
+		ANGLE_ABOUT_X : REAL;				// FIXME: UNUSED AS OF END OF DAY 11.15.19 - NEEDED?  (ALSO IN Top_Level_Control)
+		ANGLE_ABOUT_Y : REAL; 				// FIXME: UNUSED AS OF END OF DAY 11.15.19 - NEEDED?  (ALSO IN Top_Level_Control)
+		
+		POS_TOOL_RADIUS : REAL := 1;
+
+//Sensors   								// FIXME: THESE VALUES ARE UNUSED AS OF 11.19.19 - ARE THEY NEEDED?
+	DV1390_TILT_SENSOR1_WARN_LEVEL : REAL;
+	DV1396_TILT_SENSOR2_WARN_LEVEL : REAL;
+	
+	DV1375_LOAD_CELL_JACK1_WARN_LEVEL : REAL;
+	DV1379_LOAD_CELL_JACK2_WARN_LEVEL : REAL;
+	DV1385_LOAD_CELL_JACK3_WARN_LEVEL : REAL;
+	
+//Other
+	Persistant_Data_Load_Fault: BOOL:=0;
+	LAPTOP_TEST_ENABLE: BOOL:=0;
+	delT:INT:=100; 							//100ms cycle time
+	cycle:INT:=10; 							//cycle time of program in ms
+	calculate: BOOL:=0; 					
+	Program_Location: INT:=0;				
+	HMI_MOVE_IN_PROGRESS: BOOL :=0; 		//BIT TO TRACK IF A MOVE IS IN PROGRESS
+	HMI_CONTROL_INPUT: BOOL :=0; 			//BIT TO TRACK THAT A CONTROL INPUT IS ACTIVE
+	HMI_ACTIVE_LOC: INT:=0;					//This variable tracks whic HMI station is active, 0=NO STATION, 1=LOCAL, 2=NEAR REMOTE, 3=FAR REMOTE
+	HMI_OPS_LAST_SCREEN: INT :=12;
+	ENET_IP_STATE: UINT;
+		
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,261 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <POU Name="MAIN" Id="{dd49d34d-3264-41b2-95c9-027a01548b52}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN 
+VAR // Variable Declaration // Name : TYPE := value;
+	Program_Location : INT :=0; // Locaiton for software installation, 0=CMF, 1=Near Remote HMI EN1900
+	LAPTOP_TEST_ENABLE:BOOL:=0; // TESTING BIT, 0=Hard Operating, 1=Soft Testing
+	
+	RGP : System;
+	Visualization : Touchscreen;
+
+	init : BOOL:=0;
+	
+	bstart: BOOL;
+	Start_HMI: NT_StartProcess;
+	UPS: FB_S_UPS_CX51x0;
+	HMI_Start_up_Timer: TON;
+	
+  (*TEST VAR*)
+	Toggle: BOOL:=0;
+	count: BOOL:=TRUE; 
+	icount: INT;
+	visible: STRING;
+	invis: INT;
+	indis: STRING;
+	intxt: STRING;
+	
+	delT:INT:=250; //100ms cycle time
+	cycle:INT:=10; //cycle time of program in ms
+	inc: INT:=0;
+	//calculate: BOOL:=0;
+	test_gain: REAL:=0.9;
+	Pro_Sensor_State: INT:=0;
+	FB_Slave_Write: FB_EcSetSlaveState;
+	FB_Slave_TON:TON;
+	reqstate:WORD;
+	
+	Start_up_Timer: TON;
+	
+	ActualCurrent AT %I*: INT;
+	SetCurrent AT %I*: INT;
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[Start_up_Timer();
+IF (NOT Start_up_Timer.Q) THEN
+	Start_up_Timer.PT:=T#250MS;
+	Start_up_Timer.IN:=1;
+ELSE	
+	IF (init=0) THEN 	
+		RGP.PROG.LAPTOP_TEST_ENABLE:=LAPTOP_TEST_ENABLE; // ENABLE FOR SOFT TESTING
+		RGP.PROG.delT:=delT;
+		RGP.PROG.cycle:=cycle;
+		RGP.PROG.Program_Location := Program_Location;
+		
+		// Initializes test data for debugging without the system
+			IF (LAPTOP_TEST_ENABLE) THEN
+				RGP.EN1000.DV1052_SMR :=1;
+			END_IF
+
+		INIT_VAR(RGP:=RGP, Visualization:=Visualization);
+		// IF USING A REMOTE HMI	
+		// IF (Program_Location=1 OR Program_Location=2) THEN
+		//	Alarms_Warnings(RGP:=RGP);
+		// END_IF
+		
+		init:=TRUE;	
+		HMI_Start_up_Timer.PT:=T#4000MS;
+		HMI_Start_up_Timer.IN:=TRUE;
+		
+	END_IF
+	
+	//Starts up the visualization depending on the software installation location
+		IF (HMI_Start_up_Timer.IN AND HMI_Start_up_Timer.Q=0) THEN
+			HMI_Start_up_Timer();
+		ELSIF (HMI_Start_up_Timer.IN AND HMI_Start_up_Timer.Q) THEN
+			HMI_Start_up_Timer.IN:=FALSE;
+				IF (RGP.PROG.LAPTOP_TEST_ENABLE=1) THEN
+						Start_HMI(
+							NETID:='',
+							PATHSTR:='C:\TwinCAT\3.1\Components\Plc\Tc3PlcHmi\Tc3PlcHmi.exe',
+							DIRNAME:='C:\TwinCAT\3.1\Components\Plc\Tc3PlcHmi',
+							COMNDLINE:=,
+							START:=TRUE,
+							TMOUT:=,
+							BUSY=> ,
+							ERR=> ,
+							ERRID=> );
+				ELSIF (RGP.PROG.Program_Location=0) THEN	// CMF
+						Start_HMI(
+							NETID:='',
+							PATHSTR:='C:\TwinCAT\3.1\Components\Plc\Tc3PlcHmi\Tc3PlcHmi.exe',
+							DIRNAME:='C:\TwinCAT\3.1\Components\Plc\Tc3PlcHmi',
+							COMNDLINE:=,
+							START:=TRUE,
+							TMOUT:=,
+							BUSY=> ,
+							ERR=> ,
+							ERRID=> );
+				ELSIF (RGP.PROG.Program_Location=1) THEN	// REMOTE HMI	
+					Start_HMI(
+						NETID:='',
+						PATHSTR:='C:\TwinCAT\3.1\Components\Plc\Tc3PlcHmi\Tc3PlcHmi.exe',
+						DIRNAME:='C:\TwinCAT\3.1\Components\Plc\Tc3PlcHmi',
+						COMNDLINE:=,
+						START:=TRUE,
+						TMOUT:=,
+						BUSY=> ,
+						ERR=> ,
+						ERRID=> );
+				END_IF
+		END_IF
+	
+	
+	//Timer that trippers a bit every delT time for calculations that are to be calculated at a greater period then the program cycle time. 
+		inc:=inc+1;
+		IF ( inc >= (RGP.PROG.delT/MAIN.RGP.PROG.cycle) ) THEN
+			inc:=0;
+			RGP.PROG.calculate:=1;
+		ELSE
+			RGP.PROG.calculate:=0;
+		END_IF
+	
+	//Sets the desired program visualization to the global display visualation variable
+		CurrentVisu:=Visualization.CurrentVisu;
+	
+	//Enables the persistent data logging if the installation location is the main controller
+		IF (Program_Location=0)THEN
+			Persistent_Data(RGP:=RGP, TS_IN:=Visualization);
+		END_IF
+	
+	// Check for inputs
+	INPUTS(RGP:=RGP, TS_IN:=Visualization);
+	
+	// Update touchscreen
+	Touchscreen_Instance(TS_IN:=Visualization,RGP:=RGP);
+
+	//Section that moves the visualization depending on the software installation location
+		IF (Program_Location=0)THEN
+			RGP.EN1000.DV1146_TS:=Visualization;
+		(*ELSIF (Program_Location=1) THEN
+			RGP.EN1900_NRHMI.PLC1915_TS:=Visualization;
+			*)
+		END_IF
+	
+	IF (PROGRAM_LOCATION=0) THEN
+		//Force_Sensor_Monitor(FS:=RGP.PROG.MAN_FORCE_SENSOR_MONITOR, RGP:=RGP);
+		Alarms_Warnings(RGP:=RGP);
+		//Alarm_Sounder_Control(RGP:=RGP);
+		//HMI_Control_Management(RGP:=RGP,TS_IN:=Visualization);
+		TOP_LEVEL_CONTROL(RGP:=RGP, TS_IN:=Visualization);
+		
+		Motion_Axis_Control(Axis:= RGP.EN1000.DV1150_TRANSX_DRIVE, MAIN.RGP.PROG.delT, MAIN.RGP.PROG.calculate, MAIN.RGP.PROG.cycle);
+		Motion_Axis_Control(Axis:= RGP.EN1000.DV1175_TRANSY_DRIVE, MAIN.RGP.PROG.delT, MAIN.RGP.PROG.calculate, MAIN.RGP.PROG.cycle);
+		Motion_Axis_Control(Axis:= RGP.EN1000.DV1151_JACK1_DRIVE, MAIN.RGP.PROG.delT, MAIN.RGP.PROG.calculate, MAIN.RGP.PROG.cycle);
+		Motion_Axis_Control(Axis:= RGP.EN1000.DV1275_JACK2_DRIVE, MAIN.RGP.PROG.delT, MAIN.RGP.PROG.calculate, MAIN.RGP.PROG.cycle);
+		Motion_Axis_Control(Axis:= RGP.EN1000.DV1301_JACK3_DRIVE, MAIN.RGP.PROG.delT, MAIN.RGP.PROG.calculate, MAIN.RGP.PROG.cycle);
+		Motion_Axis_Control(Axis:= RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE, MAIN.RGP.PROG.delT, MAIN.RGP.PROG.calculate, MAIN.RGP.PROG.cycle);
+		Motion_Axis_Control(Axis:= RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE, MAIN.RGP.PROG.delT, MAIN.RGP.PROG.calculate, MAIN.RGP.PROG.cycle);
+		
+	END_IF
+
+	OUTPUTS(TS_IN:=Visualization ,RGP:=MAIN.RGP);
+	
+	IF (MAIN.RGP.PROG.LAPTOP_TEST_ENABLE=0) THEN
+		UPS(
+				sNETID:='', (* '' = local netid *)
+				iPLCPort:=0, (* PLC Runtime System for writing persistent data *)
+				iUPSPort:=16#588, (* Port for reading Power State of UPS *)
+				tTimeout:=DEFAULT_ADS_TIMEOUT, (* ADS Timeout *)
+				eUpsMode        := E_S_UPS_Mode.eSUPS_WrPersistData_Shutdown, (* UPS mode (w/wo writing persistent data, w/wo shutdown) *)
+				ePersistentMode := E_PersistentMode.SPDM_2PASS, (* mode for writing persistent data *)
+				tRecoverTime    := T#10S (* ON time to recover from short power failure in mode eSUPS_WrPersistData_NoShutdown/eSUPS_CheckPowerStatus *)
+			);
+	END_IF
+
+(*	//TEST SECTION OF CODE
+		IF (MAIN.RGP.PROG.LAPTOP_TEST_ENABLE=1) THEN
+			IF (MAIN.RGP.PROG.calculate) THEN
+				IF (ABS(MAIN.RGP.EN1000.RIO1106_TOOL_ROTATE.OUT_Analog.Value)>0.001) THEN
+					MAIN.RGP.EN1000.RIO1106_TOOL_ROTATE.Feedback.Position := MAIN.RGP.EN1000.RIO1106_TOOL_ROTATE.Feedback.Position + MAIN.RGP.EN1000.RIO1106_TOOL_ROTATE.OUT_Analog.Value/100*MAIN.RGP.EN1000.RIO1106_TOOL_ROTATE.CL_RUN_Max_Velp*(INT_TO_REAL(delT)/1000);
+				END_IF
+			END_IF
+		END_IF
+*)
+END_IF
+]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="3" Count="10" />
+      <LineId Id="302" Count="0" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="387" Count="0" />
+      <LineId Id="103" Count="2" />
+      <LineId Id="1725" Count="0" />
+      <LineId Id="300" Count="0" />
+      <LineId Id="108" Count="0" />
+      <LineId Id="299" Count="0" />
+      <LineId Id="1726" Count="0" />
+      <LineId Id="303" Count="0" />
+      <LineId Id="1021" Count="0" />
+      <LineId Id="1023" Count="0" />
+      <LineId Id="1727" Count="0" />
+      <LineId Id="973" Count="0" />
+      <LineId Id="1022" Count="0" />
+      <LineId Id="1075" Count="0" />
+      <LineId Id="1024" Count="0" />
+      <LineId Id="1026" Count="2" />
+      <LineId Id="1030" Count="12" />
+      <LineId Id="1349" Count="0" />
+      <LineId Id="1044" Count="18" />
+      <LineId Id="1074" Count="0" />
+      <LineId Id="974" Count="0" />
+      <LineId Id="110" Count="10" />
+      <LineId Id="305" Count="0" />
+      <LineId Id="121" Count="1" />
+      <LineId Id="306" Count="0" />
+      <LineId Id="123" Count="2" />
+      <LineId Id="308" Count="0" />
+      <LineId Id="1728" Count="0" />
+      <LineId Id="126" Count="0" />
+      <LineId Id="144" Count="0" />
+      <LineId Id="1729" Count="0" />
+      <LineId Id="146" Count="0" />
+      <LineId Id="310" Count="0" />
+      <LineId Id="147" Count="4" />
+      <LineId Id="1730" Count="0" />
+      <LineId Id="154" Count="2" />
+      <LineId Id="1574" Count="0" />
+      <LineId Id="157" Count="1" />
+      <LineId Id="1772" Count="0" />
+      <LineId Id="160" Count="1" />
+      <LineId Id="505" Count="0" />
+      <LineId Id="1390" Count="0" />
+      <LineId Id="1682" Count="0" />
+      <LineId Id="1391" Count="3" />
+      <LineId Id="585" Count="0" />
+      <LineId Id="185" Count="0" />
+      <LineId Id="311" Count="0" />
+      <LineId Id="186" Count="0" />
+      <LineId Id="1616" Count="0" />
+      <LineId Id="1637" Count="0" />
+      <LineId Id="1620" Count="0" />
+      <LineId Id="1636" Count="0" />
+      <LineId Id="1622" Count="1" />
+      <LineId Id="1631" Count="2" />
+      <LineId Id="1635" Count="0" />
+      <LineId Id="1629" Count="0" />
+      <LineId Id="1638" Count="0" />
+      <LineId Id="1617" Count="0" />
+      <LineId Id="188" Count="4" />
+      <LineId Id="195" Count="0" />
+      <LineId Id="259" Count="0" />
+      <LineId Id="312" Count="0" />
+      <LineId Id="1731" Count="0" />
+      <LineId Id="261" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

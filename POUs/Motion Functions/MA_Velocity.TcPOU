@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="MA_Velocity" Id="{95d7d574-ff61-4957-ab73-a28deb5357b3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION MA_Velocity : INT
+
+VAR_INPUT
+	//Enable: BOOL:=0;
+	Speed: REAL:=0;
+END_VAR
+
+
+VAR_IN_OUT
+	Axis: Motion_Axis;
+END_VAR
+
+VAR
+	i: INT:=0;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[Axis.IN_Closed_Open_Loop:=1;
+Axis.IN_Enable_Control:=1;
+
+Axis.OL_IN_Analog:=0;
+Axis.OL_IN_Slave_Enable:=0;
+Axis.OL_Move_Type:=0;
+Axis.OL_IN_Bump_Duration:= T#0MS;  //Timer for Bump Type of Move
+Axis.OL_IN_Bump_Trigger:= 0;
+
+Axis.CL_IN_Vel:=Speed;
+Axis.CL_IN_Slave_Enable:=0;
+//Axis.CL_IN_Vary_Vel:=0;
+//Axis.CL_IN_Load:=0;
+Axis.CL_Move_Type:=1;]]></ST>
+    </Implementation>
+    <LineIds Name="MA_Velocity">
+      <LineId Id="3" Count="12" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

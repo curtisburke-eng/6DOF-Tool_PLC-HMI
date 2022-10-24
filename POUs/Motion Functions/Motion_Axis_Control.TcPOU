@@ -1,0 +1,372 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="Motion_Axis_Control" Id="{59d0f22c-69ad-477e-8fa5-7e1c838392d1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION Motion_Axis_Control : INT
+
+VAR_IN_OUT
+	Axis: Motion_Axis;
+END_VAR
+
+VAR_INPUT
+	DelT: INT; //Time between samples for velocity reading (in ms)
+	Pos_Calc: BOOL; //Bit to trigger Position Calc
+	cycle:INT;	
+END_VAR
+
+VAR
+	i: INT:=0;
+	Pos_del_old:REAL:=0;
+	dPos_del_old:REAL:=0;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//This section controls a delay on the drive enable signal if the additional drive interface IO change to ensure the drive reads these inputs before enabling the drive
+	IF ( ((Axis.IN_Func_1 <> Axis.OUT_DO2) OR (Axis.IN_Func_2 <> Axis.OUT_DO3) OR (Axis.IN_Func_3 <> Axis.OUT_DO4))) THEN
+		Axis.RUN_Enable_Delay_TON.IN:=1;
+	ELSIF (Axis.RUN_Enable_Delay_TON.Q=1) THEN
+		Axis.RUN_Enable_Delay_TON.IN:=0;
+	END_IF
+	Axis.RUN_Enable_Delay_TON();
+	Axis.OUT_DO2:=Axis.IN_Func_1;
+	Axis.OUT_DO3:=Axis.IN_Func_2;
+	Axis.OUT_DO4:=Axis.IN_Func_3;
+	Axis.OUT_DO5:=Axis.IN_Func_4;
+	
+//This section controls the on timer for the axis indicating that the axis has been enabled for an X amount of time
+	IF(Axis.OUT_Enable) THEN
+		Axis.CL_RUN_TON.IN:=1;
+	ELSE
+		Axis.CL_RUN_TON.IN:=0;
+	END_IF
+	Axis.CL_RUN_TON();
+
+//Section that controls the axis per inputs
+	IF(Axis.IN_Enable_Control = FALSE ) THEN //Motion axis is disabled
+		Axis.OUT_Enable := FALSE;
+		Axis.OL_IN_Bump_Trigger:=0;
+		Axis.OL_IN_Bump_Duration:=T#0MS;
+		Axis.OL_RUN_Bump_TOF.IN := 0;
+		Axis.OL_RUN_Bump_TOF.PT := T#0MS;
+		Axis.OL_RUN_Bump_TOF();
+		Axis.OL_RUN_Bump_Track:=0;
+		Axis.OL_IN_Bump_Trigger:=0;
+		Axis.OUT_Analog.Value :=0;
+		
+		Axis.CL_RUN_Vel_del := 0;
+		Axis.CL_RUN_Pos_del := 0;
+		Axis.OL_Move_Type:=0;
+		Axis.CL_RUN_Pos_target := Axis.Feedback.Position;
+		Axis.CL_RUN_VEL_DELAY.IN:=0;
+		Axis.CL_RUN_EPos_del:=0;
+		Axis.CL_RUN_Max_Veln_Updated:=Axis.CL_RUN_Max_Veln;
+		Axis.CL_RUN_Max_Velp_Updated:=Axis.CL_RUN_Max_Velp;
+		Axis.CL_RUN_Position_Reached:=0;
+	ELSIF( Axis.RUN_Enable_Delay_TON.IN=1 ) THEN //Motion Axis I/O change timer is still running
+			Axis.OUT_Enable := FALSE;
+	ELSIF( Axis.IN_Closed_Open_Loop=0 AND Axis.OL_Move_Type=0) THEN //Jog Mode, open loop speed move
+		Axis.OUT_Enable := TRUE;
+		
+		Axis.OUT_Analog.Value := Axis.OL_IN_Analog*Axis.OL_RUN_Analog_Scale[Axis.OL_IN_Calc_Ref] + Axis.OL_RUN_Analog_Offset[Axis.OL_IN_Calc_Ref];
+		Axis.OUT_Analog.Value := Axis.OUT_Analog.Value + BOOL_TO_REAL(Axis.OL_IN_Slave_Enable) * (Axis.OL_IN_Slave_Command*Axis.OL_RUN_Slave_Scale + Axis.OL_RUN_Slave_Offset_Dist);
+		
+	ELSIF( Axis.IN_Closed_Open_Loop=0 AND Axis.OL_Move_Type=1) THEN //Jump Move, Open Loop speed move for a set time
+		IF ( Axis.OL_IN_Bump_Trigger=1 AND Axis.OL_RUN_Bump_Track=0) THEN
+			Axis.OL_RUN_Bump_Track:=1;
+			Axis.OL_RUN_Bump_TOF.PT:=Axis.OL_IN_Bump_Duration;
+			Axis.OL_RUN_Bump_TOF.IN:=1;
+	
+			Axis.OUT_Analog.Value := Axis.OL_IN_Analog*Axis.OL_RUN_Analog_Scale[Axis.OL_IN_Calc_Ref] + Axis.OL_RUN_Analog_Offset[Axis.OL_IN_Calc_Ref];
+			Axis.OUT_Analog.Value := Axis.OUT_Analog.Value + BOOL_TO_INT(Axis.OL_IN_Slave_Enable) * (Axis.OL_IN_Slave_Command*Axis.OL_RUN_Slave_Scale + Axis.OL_RUN_Slave_Offset_Dist);
+		ELSIF (Axis.OL_RUN_Bump_Track=1 AND Axis.OL_RUN_Bump_TOF.IN=1) THEN
+			Axis.OL_RUN_Bump_TOF.IN:=0;
+		ELSIF (Axis.OL_IN_Bump_Trigger=0 AND Axis.OL_RUN_Bump_TOF.Q=0) THEN
+			Axis.OL_RUN_Bump_Track:=0;
+		END_IF
+	
+		Axis.OL_RUN_Bump_TOF();
+		IF(Axis.OL_RUN_Bump_TOF.Q AND Axis.RUN_Enable_Delay_TON.IN=0) THEN
+			Axis.OUT_Enable := TRUE;
+			Axis.OUT_Analog.Value := Axis.OL_IN_Analog*Axis.OL_RUN_Analog_Scale[Axis.OL_IN_Calc_Ref] + Axis.OL_RUN_Analog_Offset[Axis.OL_IN_Calc_Ref];
+			Axis.OUT_Analog.Value := Axis.OUT_Analog.Value + BOOL_TO_INT(Axis.OL_IN_Slave_Enable) * (Axis.OL_IN_Slave_Command*Axis.OL_RUN_Slave_Scale + Axis.OL_RUN_Slave_Offset_Dist);
+		ELSE
+			Axis.OUT_Enable := FALSE;
+			Axis.OUT_Analog.Value :=0;
+		END_IF
+	
+	ELSIF( Axis.IN_Closed_Open_Loop=1 AND Axis.CL_Move_Type=1) THEN //Velocity Mode, Closed Loop Control per Core Position Command
+		Axis.CL_RUN_VEL_DELAY.IN:=1;
+	
+		IF (Axis.OUT_Enable=0) THEN
+			Axis.CL_RUN_Pos_target := Axis.Feedback.Position;
+		END_IF
+		
+		//Ensures the input velocity is below the maximum allowed
+			IF (Axis.CL_IN_Vel>Axis.CL_RUN_Max_Velp_Updated) THEN
+				Axis.CL_IN_Vel:=Axis.CL_RUN_Max_Velp_Updated;
+			ELSIF (Axis.CL_IN_Vel<(-1*Axis.CL_RUN_Max_Veln_Updated)) THEN
+				Axis.CL_IN_Vel:=-1*Axis.CL_RUN_Max_Veln_Updated;
+			END_IF
+		
+		//Calculates the delta position error
+			IF (Axis.CL_IN_Delt_Reset) THEN
+				Axis.CL_RUN_Pos_target := Axis.Feedback.Position + Axis.CL_IN_Vel*(INT_TO_REAL(cycle)/1000);
+				Axis.CL_RUN_EPos_del:=0;	
+			ELSE
+				Axis.CL_RUN_Pos_target := Axis.CL_RUN_Pos_target + Axis.CL_IN_Vel*(INT_TO_REAL(cycle)/1000);	
+			END_IF
+			Axis.CL_RUN_Vel_del := Axis.CL_IN_Vel-Axis.Feedback.Velocity;
+			Axis.CL_RUN_Pos_del := Axis.CL_RUN_Pos_target-Axis.Feedback.Position;
+			Axis.CL_RUN_EPos_del:=Axis.CL_RUN_EPos_del+Axis.CL_RUN_Pos_del;	
+		
+			IF (Axis.CL_IN_Vel>=0) THEN
+				Axis.OUT_Analog.Value := Axis.CL_RUN_Pos_del*Axis.CL_RUN_Pgain[1] + Axis.CL_RUN_EPos_del*Axis.CL_RUN_Igain[1] + (Axis.CL_IN_Vel-Axis.Feedback.Velocity)*Axis.CL_RUN_Dgain[1] + Axis.CL_IN_Vel*Axis.CL_RUN_VFFgain[1];
+			ELSE
+				Axis.OUT_Analog.Value := Axis.CL_RUN_Pos_del*Axis.CL_RUN_Pgain[1] + Axis.CL_RUN_EPos_del*Axis.CL_RUN_Igain[1] + (Axis.CL_IN_Vel-Axis.Feedback.Velocity)*Axis.CL_RUN_Dgain[1] + Axis.CL_IN_Vel*Axis.CL_RUN_VFFgain[1];
+			END_IF
+	
+		//Updates the calculated maximum velocity
+			IF (Axis.OUT_Analog.Value>90) THEN
+				Axis.CL_Vel_Max_Adjust_TON.IN:=1;
+				IF (Axis.CL_RUN_TON.Q AND Axis.CL_Vel_Max_Adjust_TON.Q AND Axis.CL_Enable_Max_Vel_Adjustment AND (Axis.Feedback.Velocity < Axis.CL_RUN_Max_Velp_Updated) AND (Axis.Feedback.Velocity > 0.01) ) THEN //Additional logic for velocity comparision
+					Axis.CL_RUN_Max_Velp_Updated := Axis.Feedback.Velocity*0.95;
+					Axis.CL_Vel_Max_Adjust_TON.IN:=0;
+				END_IF
+			ELSIF (Axis.OUT_Analog.Value<(-90)) THEN
+				Axis.CL_Vel_Max_Adjust_TON.IN:=1;
+				IF (Axis.CL_RUN_TON.Q AND Axis.CL_Vel_Max_Adjust_TON.Q AND Axis.CL_Enable_Max_Vel_Adjustment AND (ABS(Axis.Feedback.Velocity) < Axis.CL_RUN_Max_Veln_Updated) AND (Axis.Feedback.Velocity < -0.01) ) THEN //Additional logic for velocity comparision
+					Axis.CL_RUN_Max_Veln_Updated := ABS(Axis.Feedback.Velocity)*0.95;
+					Axis.CL_Vel_Max_Adjust_TON.IN:=0;
+				END_IF
+			ELSE
+				Axis.CL_Vel_Max_Adjust_TON.IN:=0;
+			END_IF
+			//NEED TO CONSIDER READJUSTING FOR MAX SPEED WHEN IT BACKS OFF OF THE LIMIT
+	
+		//Factors in the Slave Signal into the velocity command
+			//Axis.CL_IN_Vel := Axis.CL_IN_Vel + BOOL_TO_REAL(Axis.CL_IN_Slave_Enable) * (Axis.CL_IN_Slave_Command*Axis.CL_RUN_Slave_Scale + Axis.CL_RUN_Slave_Offset_Dist);
+			Axis.OUT_Analog.Value := Axis.OUT_Analog.Value + BOOL_TO_REAL(Axis.CL_IN_Slave_Enable) * (Axis.CL_IN_Slave_Command*Axis.CL_RUN_Slave_Scale + Axis.CL_RUN_Slave_Offset_Dist);
+	
+		Axis.OUT_Enable := TRUE;
+	
+	ELSIF( Axis.IN_Closed_Open_Loop=1 AND Axis.CL_Move_Type=3 AND Axis.CL_RUN_Position_Reached=0) THEN //Velocity Mode, Closed Loop Control per Core Position Command with destination
+		Axis.CL_RUN_VEL_DELAY.IN:=1;
+		
+		IF (Axis.OUT_Enable=0) THEN
+			Axis.CL_RUN_Pos_target := Axis.Feedback.Position;
+		END_IF
+		
+		IF (Axis.OUT_Enable=0) THEN
+			IF (Axis.CL_IN_Vel>0) THEN
+				Axis.CL_RUN_direction:=1;
+			ELSE
+				Axis.CL_RUN_direction:=0;
+			END_IF
+		END_IF
+		
+		//Checks if the target position has been reached
+			IF (Axis.CL_RUN_direction=1) THEN
+				IF (Axis.Feedback.Position>Axis.CL_IN_Pos_target) THEN
+					Axis.CL_RUN_Position_Reached:=1;
+					Axis.OUT_Enable:=1;
+				END_IF
+			ELSE
+				IF (Axis.Feedback.Position<Axis.CL_IN_Pos_target) THEN
+					Axis.CL_RUN_Position_Reached:=1;
+					Axis.OUT_Enable:=1;
+				END_IF
+			END_IF
+		
+		//Ensures the input velocity is below the maximum allowed
+			IF (Axis.CL_IN_Vel>Axis.CL_RUN_Max_Velp_Updated) THEN
+				Axis.CL_IN_Vel:=Axis.CL_RUN_Max_Velp_Updated;
+			ELSIF (Axis.CL_IN_Vel<(-1*Axis.CL_RUN_Max_Veln_Updated)) THEN
+				Axis.CL_IN_Vel:=-1*Axis.CL_RUN_Max_Veln_Updated;
+			END_IF
+		
+		//Calculates the delta position error
+			IF (Axis.CL_IN_Delt_Reset) THEN
+				Axis.CL_RUN_Pos_target := Axis.Feedback.Position + Axis.CL_IN_Vel*(INT_TO_REAL(cycle)/1000);
+				Axis.CL_RUN_EPos_del:=0;	
+			ELSE
+				Axis.CL_RUN_Pos_target := Axis.CL_RUN_Pos_target + Axis.CL_IN_Vel*(INT_TO_REAL(cycle)/1000);	
+			END_IF
+			//Sets the target position to the input target position if the calculated target is past the input target
+				IF (Axis.CL_RUN_direction=1) THEN
+					IF (Axis.CL_RUN_Pos_target>Axis.CL_IN_Pos_target) THEN
+						Axis.CL_RUN_Pos_target:=Axis.CL_IN_Pos_target;
+					END_IF
+				ELSE
+					IF (Axis.CL_RUN_Pos_target<Axis.CL_IN_Pos_target) THEN
+						Axis.CL_RUN_Pos_target:=Axis.CL_IN_Pos_target;
+					END_IF
+				END_IF
+	
+			//Decels the input velocity per the target position
+				IF (Axis.CL_RUN_direction=1) THEN
+					IF (Axis.Feedback.Position>(Axis.CL_IN_Pos_target-Axis.CL_RUN_Max_Velp_Updated*Axis.CL_IN_Decel_Time)) THEN
+						IF ( ABS((Axis.CL_IN_Pos_target-Axis.Feedback.Position)/(Axis.CL_IN_Vel*Axis.CL_IN_Decel_Time))< 1 ) THEN
+							Axis.CL_IN_Vel:=(Axis.CL_IN_Pos_target-Axis.Feedback.Position)/(Axis.CL_IN_Decel_Time);
+						END_IF
+					END_IF
+				ELSE
+					IF (Axis.Feedback.Position<(Axis.CL_IN_Pos_target+Axis.CL_RUN_Max_Veln_Updated*Axis.CL_IN_Decel_Time)) THEN
+						IF ( ABS((Axis.CL_IN_Pos_target-Axis.Feedback.Position)/(Axis.CL_IN_Vel*Axis.CL_IN_Decel_Time))< 1 ) THEN
+							Axis.CL_IN_Vel:=(Axis.CL_IN_Pos_target-Axis.Feedback.Position)/(Axis.CL_IN_Decel_Time);
+						END_IF
+					END_IF
+				END_IF
+	
+			Axis.CL_RUN_Vel_del := Axis.CL_IN_Vel-Axis.Feedback.Velocity;
+			Axis.CL_RUN_Pos_del := Axis.CL_RUN_Pos_target-Axis.Feedback.Position;
+			Axis.CL_RUN_EPos_del:=Axis.CL_RUN_EPos_del+Axis.CL_RUN_Pos_del;	
+	
+			//Resets the integral gain if the input target position is reached
+				IF (Axis.CL_RUN_direction=1) THEN
+					IF (Axis.Feedback.Position>(Axis.CL_IN_Pos_target-Axis.CL_RUN_Position_Reached_tolerance)) THEN
+						Axis.CL_RUN_EPos_del:=0;
+					END_IF
+				ELSE
+					IF (Axis.Feedback.Position<(Axis.CL_IN_Pos_target+Axis.CL_RUN_Position_Reached_tolerance)) THEN
+						Axis.CL_RUN_EPos_del:=0;
+					END_IF
+				END_IF
+		
+			IF (Axis.CL_IN_Vel>=0) THEN
+				Axis.OUT_Analog.Value := Axis.CL_RUN_Pos_del*Axis.CL_RUN_Pgain[1] + Axis.CL_RUN_EPos_del*Axis.CL_RUN_Igain[1] + (Axis.CL_IN_Vel-Axis.Feedback.Velocity)*Axis.CL_RUN_Dgain[1] + Axis.CL_IN_Vel*Axis.CL_RUN_VFFgain[1];
+			ELSE
+				Axis.OUT_Analog.Value := Axis.CL_RUN_Pos_del*Axis.CL_RUN_Pgain[1] + Axis.CL_RUN_EPos_del*Axis.CL_RUN_Igain[1] + (Axis.CL_IN_Vel-Axis.Feedback.Velocity)*Axis.CL_RUN_Dgain[1] + Axis.CL_IN_Vel*Axis.CL_RUN_VFFgain[1];
+			END_IF
+	
+		//Updates the calculated maximum velocity
+			IF (Axis.OUT_Analog.Value>90) THEN
+				Axis.CL_Vel_Max_Adjust_TON.IN:=1;
+				IF (Axis.CL_RUN_TON.Q AND Axis.CL_Vel_Max_Adjust_TON.Q AND Axis.CL_Enable_Max_Vel_Adjustment AND (Axis.Feedback.Velocity < Axis.CL_RUN_Max_Velp_Updated) AND (Axis.Feedback.Velocity > 0.01) ) THEN //Additional logic for velocity comparision
+					Axis.CL_RUN_Max_Velp_Updated := Axis.Feedback.Velocity*0.95;
+					Axis.CL_Vel_Max_Adjust_TON.IN:=0;
+				END_IF
+			ELSIF (Axis.OUT_Analog.Value<(-90)) THEN
+				Axis.CL_Vel_Max_Adjust_TON.IN:=1;
+				IF (Axis.CL_RUN_TON.Q AND Axis.CL_Vel_Max_Adjust_TON.Q AND Axis.CL_Enable_Max_Vel_Adjustment AND (ABS(Axis.Feedback.Velocity) < Axis.CL_RUN_Max_Veln_Updated) AND (Axis.Feedback.Velocity < -0.01) ) THEN //Additional logic for velocity comparision
+					Axis.CL_RUN_Max_Veln_Updated := ABS(Axis.Feedback.Velocity)*0.95;
+					Axis.CL_Vel_Max_Adjust_TON.IN:=0;
+				END_IF
+			ELSE
+				Axis.CL_Vel_Max_Adjust_TON.IN:=0;
+			END_IF
+			//NEED TO CONSIDER READJUSTING FOR MAX SPEED WHEN IT BACKS OFF OF THE LIMIT
+	
+		//Factors in the Slave Signal into the velocity command
+			//Axis.CL_IN_Vel := Axis.CL_IN_Vel + BOOL_TO_REAL(Axis.CL_IN_Slave_Enable) * (Axis.CL_IN_Slave_Command*Axis.CL_RUN_Slave_Scale + Axis.CL_RUN_Slave_Offset_Dist);
+			Axis.OUT_Analog.Value := Axis.OUT_Analog.Value + BOOL_TO_REAL(Axis.CL_IN_Slave_Enable) * (Axis.CL_IN_Slave_Command*Axis.CL_RUN_Slave_Scale + Axis.CL_RUN_Slave_Offset_Dist);
+	
+		Axis.OUT_Enable := TRUE;
+	
+	ELSE
+		Axis.OL_IN_Bump_Trigger:=0;
+		Axis.OL_IN_Bump_Duration:=T#0MS;
+		Axis.OUT_Enable := FALSE;
+		Axis.OL_RUN_Bump_TOF.IN := 0;
+		Axis.OL_RUN_Bump_TOF.PT := T#0MS;
+		Axis.OL_RUN_Bump_TOF();
+		Axis.OL_RUN_Bump_Track:=0;
+		Axis.OL_IN_Bump_Trigger:=0;
+		Axis.OUT_Analog.Value :=0;
+		Axis.CL_RUN_Pos_target := Axis.Feedback.Position;	
+		Axis.CL_RUN_VEL_DELAY.IN:=0;
+		Axis.CL_RUN_EPos_del:=0;	
+		Axis.CL_RUN_EPos_del:=0;
+		Axis.CL_RUN_Max_Veln_Updated:=Axis.CL_RUN_Max_Veln;
+		Axis.CL_RUN_Max_Velp_Updated:=Axis.CL_RUN_Max_Velp;
+		Axis.CL_RUN_Position_Reached:=0;
+	END_IF
+	Axis.CL_RUN_VEL_DELAY();
+	Axis.CL_Vel_Max_Adjust_TON();
+
+//Position Monitor for Hard EOT Limits, disables control if limit is reached
+	IF (Axis.OUT_Analog.Value>0 AND Axis.OUT_Enable AND Axis.IN_EOT_POS) THEN
+		Axis.OL_IN_Bump_Trigger:=0;
+		Axis.OL_IN_Bump_Duration:=T#0MS;
+		Axis.OUT_Enable := FALSE;
+		Axis.OL_RUN_Bump_TOF.IN := 0;
+		Axis.OL_RUN_Bump_TOF.PT := T#0MS;
+		Axis.OL_RUN_Bump_TOF();
+		Axis.OL_RUN_Bump_Track:=0;
+		Axis.OL_IN_Bump_Trigger:=0;
+		Axis.OUT_Analog.Value :=0;
+		Axis.OUT_POS_EOT_FAULT:=1;
+	ELSE
+		Axis.OUT_POS_EOT_FAULT:=0;
+	END_IF
+
+	IF (Axis.OUT_Analog.Value<0 AND Axis.OUT_Enable AND Axis.IN_EOT_NEG) THEN
+		Axis.OL_IN_Bump_Trigger:=0;
+		Axis.OL_IN_Bump_Duration:=T#0MS;
+		Axis.OUT_Enable := FALSE;
+		Axis.OL_RUN_Bump_TOF.IN := 0;
+		Axis.OL_RUN_Bump_TOF.PT := T#0MS;
+		Axis.OL_RUN_Bump_TOF();
+		Axis.OL_RUN_Bump_Track:=0;
+		Axis.OL_IN_Bump_Trigger:=0;
+		Axis.OUT_Analog.Value :=0;
+		Axis.OUT_NEG_EOT_FAULT:=1;
+	ELSE
+		Axis.OUT_NEG_EOT_FAULT:=0;
+	END_IF
+
+//Position Monitor FOR Soft EOT Limits !!NEED TO FURTHER DEVELOP AFTER CLOSED LOOP IS FURTHER TESTED
+		IF ( ABS(Axis.OUT_Analog.Value)>0 AND Axis.OUT_Enable AND Axis.IN_SOFT_EOT_ENABLE ) THEN
+			IF ( Axis.OUT_Analog.Value<0 AND (Axis.Feedback.Position<Axis.IN_SOFT_EOT_NEG OR (Axis.IN_Closed_Open_Loop=1 AND Axis.CL_RUN_Pos_target<Axis.IN_SOFT_EOT_NEG) )) THEN
+				Axis.OL_IN_Bump_Trigger:=0;
+				Axis.OL_IN_Bump_Duration:=T#0MS;
+				Axis.OUT_Enable := FALSE;
+				Axis.OL_RUN_Bump_TOF.IN := 0;
+				Axis.OL_RUN_Bump_TOF.PT := T#0MS;
+				Axis.OL_RUN_Bump_TOF();
+				Axis.OL_RUN_Bump_Track:=0;
+				Axis.OL_IN_Bump_Trigger:=0;
+				Axis.OUT_Analog.Value :=0;
+			ELSIF ( Axis.OUT_Analog.Value>0 AND (Axis.Feedback.Position>Axis.IN_SOFT_EOT_POS OR (Axis.IN_Closed_Open_Loop=1 AND Axis.CL_RUN_Pos_target>Axis.IN_SOFT_EOT_POS) )) THEN
+				Axis.OL_IN_Bump_Trigger:=0;
+				Axis.OL_IN_Bump_Duration:=T#0MS;
+				Axis.OUT_Enable := FALSE;
+				Axis.OL_RUN_Bump_TOF.IN := 0;
+				Axis.OL_RUN_Bump_TOF.PT := T#0MS;
+				Axis.OL_RUN_Bump_TOF();
+				Axis.OL_RUN_Bump_Track:=0;
+				Axis.OL_IN_Bump_Trigger:=0;
+				Axis.OUT_Analog.Value :=0;
+			END_IF
+		END_IF
+
+//Current output
+	IF(Axis.IN_Current_Limit_AN_EN) THEN
+		Axis.OUT_CurLim_Analog.Value:=Axis.IN_Current_Limit;
+	ELSE
+		Axis.OUT_CurLim_Analog.Value:=0;
+	END_IF
+	
+//Calculates the Analog Out Control Signal	
+	Analog_Out(Axis.OUT_Analog);
+	Analog_Out(Axis.OUT_CurLim_Analog);	]]></ST>
+    </Implementation>
+    <LineIds Name="Motion_Axis_Control">
+      <LineId Id="5" Count="8" />
+      <LineId Id="392" Count="1" />
+      <LineId Id="14" Count="7" />
+      <LineId Id="24" Count="53" />
+      <LineId Id="124" Count="221" />
+      <LineId Id="441" Count="0" />
+      <LineId Id="443" Count="8" />
+      <LineId Id="453" Count="10" />
+      <LineId Id="358" Count="0" />
+      <LineId Id="414" Count="0" />
+      <LineId Id="416" Count="1" />
+      <LineId Id="419" Count="2" />
+      <LineId Id="415" Count="0" />
+      <LineId Id="395" Count="0" />
+      <LineId Id="374" Count="0" />
+      <LineId Id="413" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

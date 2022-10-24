@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="Init_PB_Mom_250x75" Id="{2b9ef975-c776-4f5b-84b3-24bcb9df45c8}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION Init_PB_Mom_250x75 : INT
+
+VAR_INPUT
+END_VAR
+
+VAR
+
+END_VAR
+
+VAR_IN_OUT
+	COMP:TS_Component;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[COMP.B_TYPE:=0;
+COMP.size:=3;]]></ST>
+    </Implementation>
+    <LineIds Name="Init_PB_Mom_250x75">
+      <LineId Id="677" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

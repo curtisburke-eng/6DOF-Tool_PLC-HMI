@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <DUT Name="Axis_Position" Id="{aa507a77-4528-4eae-ab03-4074eec3920f}">
+    <Declaration><![CDATA[(*This structure is for a single Alarm*)
+TYPE Axis_Position :
+STRUCT
+
+	Raw_Data : REAL;
+	Raw_Data_Old : REAL;
+	Raw_Data_Max : REAL;
+	Raw_Data_Min : REAL;
+	Rollover_Count : INT;
+	
+	Scale : REAL;		// Value we set during testing (this sets the units as well)
+	Offset : REAL;
+	Position: REAL;
+	Position_OLD: REAL;
+	PFgain1 : REAL:=0;
+	PFgain2 : REAL:=0;
+	
+	Velocity: REAL;
+	Velocity_OLD: REAL;
+	VFgain1 : REAL:=0;
+	VFgain2 : REAL:=0;
+
+	Calibration_Position : REAL;
+	Calibration_Enable : BOOL := FALSE;
+	
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

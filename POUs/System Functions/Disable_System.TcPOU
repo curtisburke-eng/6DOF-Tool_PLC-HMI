@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <POU Name="Disable_System" Id="{6ed0d971-90d8-41aa-828d-e5e64729759f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION Disable_System : INT
+
+VAR_IN_OUT
+	RGP: System;
+END_VAR
+
+VAR
+
+	CR1278_TOOL_OUTRIGGER_RET: INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//Disables the Movment Axes
+	Disable_Axis(RGP.EN1000.DV1150_TRANSX_DRIVE);
+	Disable_Axis(RGP.EN1000.DV1175_TRANSY_DRIVE);
+	Disable_Axis(RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE);
+	Disable_Axis(RGP.EN1000.DV1151_JACK1_DRIVE);
+	Disable_Axis(RGP.EN1000.DV1275_JACK2_DRIVE);
+	Disable_Axis(RGP.EN1000.DV1301_JACK3_DRIVE);
+	Disable_Axis(RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE);
+	
+//Program Variables
+	// Axis Enable booleans
+	RGP.PROG.TRANSX_POS_EN := 0;
+	RGP.PROG.TRANSX_NEG_EN := 0;
+	RGP.PROG.TRANSY_POS_EN := 0;
+	RGP.PROG.TRANSY_NEG_EN := 0;
+	RGP.PROG.POS_TOOL_ROTZ_POS_EN := 0;
+	RGP.PROG.POS_TOOL_ROTZ_NEG_EN := 0;	
+	RGP.PROG.JACK1_POS_EN := 0;
+	RGP.PROG.JACK1_NEG_EN := 0;
+	RGP.PROG.JACK2_POS_EN := 0;
+	RGP.PROG.JACK2_NEG_EN := 0;
+	RGP.PROG.JACK3_POS_EN := 0;
+	RGP.PROG.JACK3_NEG_EN := 0;
+	RGP.PROG.MON_TOOL_ROTZ_POS_EN := 0;
+	RGP.PROG.MON_TOOL_ROTZ_NEG_EN := 0;
+	
+	// Axis Speeds
+	RGP.PROG.TRANSX_SPEED := 0;
+	RGP.PROG.TRANSY_SPEED := 0;
+	RGP.PROG.POS_TOOL_ROTZ_SPEED := 0;
+	RGP.PROG.All_JACKS_SPEED := 0; 
+	RGP.PROG.JACK1_SPEED := 0;
+	RGP.PROG.JACK2_SPEED := 0;
+	RGP.PROG.JACK3_SPEED := 0;
+	RGP.PROG.MON_TOOL_ROTZ_SPEED := 0;
+]]></ST>
+    </Implementation>
+    <LineIds Name="Disable_System">
+      <LineId Id="404" Count="0" />
+      <LineId Id="406" Count="0" />
+      <LineId Id="544" Count="0" />
+      <LineId Id="408" Count="3" />
+      <LineId Id="425" Count="0" />
+      <LineId Id="533" Count="0" />
+      <LineId Id="546" Count="0" />
+      <LineId Id="580" Count="0" />
+      <LineId Id="558" Count="1" />
+      <LineId Id="561" Count="2" />
+      <LineId Id="571" Count="0" />
+      <LineId Id="570" Count="0" />
+      <LineId Id="564" Count="4" />
+      <LineId Id="572" Count="2" />
+      <LineId Id="579" Count="0" />
+      <LineId Id="581" Count="0" />
+      <LineId Id="591" Count="2" />
+      <LineId Id="575" Count="0" />
+      <LineId Id="577" Count="1" />
+      <LineId Id="594" Count="0" />
+      <LineId Id="463" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

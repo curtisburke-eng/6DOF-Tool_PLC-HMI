@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4018.5">
+  <DUT Name="Alarm_Sounder" Id="{541f8632-7d3c-453f-8745-fd88fb0dc0e1}">
+    <Declaration><![CDATA[TYPE Alarm_Sounder :
+STRUCT
+
+	Sounder: REAL:=0; (*0-10V*)
+	Sounder_ON:TON;
+	Sounder_OFF:TON;
+	
+	IN_Beep: BOOL:=0;
+	Beep_ON_TON: TON;
+	Beep_OFF_TON: TON;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

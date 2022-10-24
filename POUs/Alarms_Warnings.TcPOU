@@ -1,0 +1,360 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <POU Name="Alarms_Warnings" Id="{e1beab74-2c91-4e2e-8d72-7689677961fb}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Alarms_Warnings // FUNCTION Alarms_Warnings : INT
+
+VAR_INPUT
+
+END_VAR
+
+VAR
+	testint: INT :=0;
+	testintA:INT :=0;
+	E_STOP_DELAY:TON;
+	//HPU_PRESS_DELAY:TON;
+	i:INT;
+	j:INT;
+	mult:BOOL;
+	Warning_Trigger:ARRAY [0..200] OF BOOL:= [0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0];
+	Alarm_Trigger:ARRAY [0..100] OF BOOL:= [0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0,
+											  0,0,0,0,0,0,0,0,0,0];
+	Alarm_Warning_Change: BOOL:=0;
+	var1: UINT :=0;	
+END_VAR
+VAR_IN_OUT
+	RGP: System;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF (RGP.PROG.Alarm_Warn_Init=0) THEN
+	//Initialization of the Warnings Text (Warnings Only Display to HMI)
+								 (*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX*)
+		
+		RGP.PROG.Warning[1].Name:= 'E-Stop PB Pressed (W01)';		
+		// EOT Switches
+		RGP.PROG.Warning[2].Name:= 'Jack 1 Pos. Soft EOT Reached (W02)';
+		RGP.PROG.Warning[3].Name:= 'Jack 1 Neg. Soft EOT Reached (W03)';
+		RGP.PROG.Warning[4].Name:= 'Jack 2 Pos. Soft EOT Reached (W04)';
+		RGP.PROG.Warning[5].Name:= 'Jack 2 Neg. Soft EOT Reached (W05)';
+		RGP.PROG.Warning[6].Name:= 'Jack 3 Pos. Soft EOT Reached (W06)';
+		RGP.PROG.Warning[7].Name:= 'Jack 3 Neg. Soft EOT Reached (W07)';
+		RGP.PROG.Warning[8].Name:= 'Position Tool Z-Rotation EOT Reached (W08)';
+		RGP.PROG.Warning[9].Name:= 'X-Translation Soft EOT Reached (W09)';
+		RGP.PROG.Warning[10].Name:= 'Y-Translation Soft EOT Reached (W10)';
+		RGP.PROG.Warning[11].Name:= 'Monitoring Tool Z-Rotation EOT Reached (W11)';
+		//Load Cells
+		RGP.PROG.Warning[12].Name:= 'Jack 1 Load Cell Force Low (W12)';
+		RGP.PROG.Warning[13].Name:= 'Jack 2 Load Cell Force Low (W13)';
+		RGP.PROG.Warning[14].Name:= 'Jack 3 Load Cell Force Low (W14)';
+		//Tilt Sensors
+		//RGP.PROG.Warning[15].Name:= 'Tilt axis 1 too low/high (W15)';
+		//RGP.PROG.Warning[16].Name:= 'Tilt axis 2 too low/high (W16)';
+
+	//Alarm Text Initialization (Alarms Dislay to HMI AND Stop the system)
+								 (*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX*)
+		RGP.PROG.Alarms[1].Name:= 'Emergency Stop Tripped (A01)';
+		// EOT Switches 		
+		RGP.PROG.Alarms[2].Name:= 'Jack 1 Pos. EOT Reached (A02)';
+		RGP.PROG.Alarms[3].Name:= 'Jack 1 Neg. EOT Reached (A03)';
+		RGP.PROG.Alarms[4].Name:= 'Jack 2 Pos. EOT Reached (A04)';
+		RGP.PROG.Alarms[5].Name:= 'Jack 2 Neg. EOT Reached (A05)';
+		RGP.PROG.Alarms[6].Name:= 'Jack 3 Pos. EOT Reached (A06)';
+		RGP.PROG.Alarms[7].Name:= 'Jack 3 Neg. EOT Reached (A07)';
+		RGP.PROG.Alarms[8].Name:= 'Position Tool Z Rotation EOT Reached (A08)';
+				
+	//Initialization of OVRD Warnings
+		FOR i:=1 TO 100 BY 1 DO
+			RGP.PROG.Warning[100+i].Name:=CONCAT('*OVRD* ',RGP.PROG.Alarms[i].Name);
+		END_FOR
+	RGP.PROG.Alarm_Warn_Init:=1;
+END_IF
+
+
+//Slight Delay after E-Stop Reset to allow devices to connect
+	E_STOP_DELAY.PT:=T#5S;
+	IF ( RGP.EN1000.DV1052_SMR ) THEN
+		E_STOP_DELAY.IN:=1;
+	ELSE
+		E_STOP_DELAY.IN:=0;
+	END_IF
+	E_STOP_DELAY();
+	
+(*	//Slight Delay after HPU Start to allow for pressure build
+	HPU_PRESS_DELAY.PT:=T#5S;
+	IF ( RGP.EN1000.CR1202_HPU_PUMP_ON AND RGP.EN1000.CR1222_PRESSURE_ENABLE ) THEN
+		HPU_PRESS_DELAY.IN:=1;
+	ELSE
+		HPU_PRESS_DELAY.IN:=0;
+	END_IF
+	HPU_PRESS_DELAY();
+*)
+
+//Alarm Trigger Logic //39,40,44
+	Alarm_Trigger[1]:= NOT(RGP.EN1000.DV1052_SMR);
+	//EOT Switches
+	Alarm_Trigger[2]:= NOT(RGP.EN1000.LS1352_JACK1_EOT_POS);
+	Alarm_Trigger[3]:= NOT(RGP.EN1000.LS1354_JACK1_EOT_NEG);
+	Alarm_Trigger[4]:= NOT(RGP.EN1000.LS1357_JACK2_EOT_POS);
+	Alarm_Trigger[5]:= NOT(RGP.EN1000.LS1359_JACK2_EOT_NEG);
+	Alarm_Trigger[6]:= NOT(RGP.EN1000.LS1362_JACK3_EOT_POS);
+	Alarm_Trigger[7]:= NOT(RGP.EN1000.LS1364_JACK3_EOT_NEG);
+	Alarm_Trigger[8]:= NOT(RGP.EN1000.LS1367_POS_TOOL_ROTZ_EOT_POS) OR NOT(RGP.EN1000.LS1369_POS_TOOL_ROTZ_EOT_NEG);
+	
+//Alarm Override Logic
+	RGP.PROG.Alarms[1].Override:= FALSE;
+
+//Warning Trigger Logic //51,71
+	Warning_Trigger[1]:= NOT RGP.EN1000.PB1056_E_STOP_PB;
+	// EOT Switches
+	Warning_Trigger[2]:= NOT RGP.EN1000.DV1151_JACK1_DRIVE.OUT_POS_SOFT_EOT_FAULT;
+	Warning_Trigger[3]:= NOT RGP.EN1000.DV1151_JACK1_DRIVE.OUT_NEG_SOFT_EOT_FAULT;
+	Warning_Trigger[4]:= NOT RGP.EN1000.DV1275_JACK2_DRIVE.OUT_POS_SOFT_EOT_FAULT;
+	Warning_Trigger[5]:= NOT RGP.EN1000.DV1275_JACK2_DRIVE.OUT_NEG_SOFT_EOT_FAULT;
+	Warning_Trigger[6]:= NOT RGP.EN1000.DV1301_JACK3_DRIVE.OUT_POS_SOFT_EOT_FAULT;
+	Warning_Trigger[7]:= NOT RGP.EN1000.DV1301_JACK3_DRIVE.OUT_NEG_SOFT_EOT_FAULT;
+	Warning_Trigger[8]:= (NOT RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.OUT_POS_SOFT_EOT_FAULT) OR (NOT RGP.EN1000.DV1325_POS_TOOL_ROTZ_DRIVE.OUT_NEG_SOFT_EOT_FAULT);
+	Warning_Trigger[9]:= (NOT RGP.EN1000.DV1150_TRANSX_DRIVE.OUT_POS_SOFT_EOT_FAULT) OR (NOT RGP.EN1000.DV1150_TRANSX_DRIVE.OUT_NEG_SOFT_EOT_FAULT);
+	Warning_Trigger[10]:= (NOT RGP.EN1000.DV1175_TRANSY_DRIVE.OUT_POS_SOFT_EOT_FAULT) OR (NOT RGP.EN1000.DV1175_TRANSY_DRIVE.OUT_NEG_SOFT_EOT_FAULT);
+	Warning_Trigger[11]:= (NOT RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.OUT_POS_SOFT_EOT_FAULT) OR (NOT RGP.EN1000.RIO1135_MON_TOOL_ROTZ_DRIVE.OUT_NEG_SOFT_EOT_FAULT);
+	// Load Cells
+	Warning_Trigger[12]:= (RGP.EN1000.DV1375_LOAD_CELL_JACK1_FZ.Value < RGP.PROG.DV1375_LOAD_CELL_JACK1_WARN_LEVEL);
+	Warning_Trigger[13]:= (RGP.EN1000.DV1379_LOAD_CELL_JACK2_FZ.Value < RGP.PROG.DV1379_LOAD_CELL_JACK2_WARN_LEVEL);
+	Warning_Trigger[14]:= (RGP.EN1000.DV1385_LOAD_CELL_JACK3_FZ.Value < RGP.PROG.DV1385_LOAD_CELL_JACK3_WARN_LEVEL);
+(* 	// Tilt Sensors (FIXME: Do we need to warn based on angle or simply display? If Warn, warn in both pos. and meg. directions (need second warn prog_var)? 
+	Warning_Trigger[15]:= (RGP.EN1000.DV1390_TILT_SENSOR1.Value < RGP.PROG.DV1390_TILT_SENSOR1_WARN_LEVEL);
+	Warning_Trigger[15]:= (RGP.EN1000.DV1396_TILT_SENSOR2 < RGP.PROG.DV1396_TILT_SENSOR2_WARN_LEVEL);
+	*)
+	
+	
+// --------------------------------------------------- Alarm Iteration Logic Below (no change needed b/w projects) ----------------------------------------------						  
+
+						  
+//Logic to trigger a warning for an alarm override
+	FOR i:=1 TO 100 BY 1 DO
+		IF (Alarm_Trigger[i]=1 AND RGP.PROG.Alarms[i].Override=1) THEN
+			Warning_Trigger[100+i]:=1;
+		ELSE
+			Warning_Trigger[100+i]:=0;
+		END_IF
+	END_FOR
+
+//Warning Logic 
+	FOR i:=1 TO 200 BY 1 DO
+		IF (Warning_Trigger[i] OR (RGP.ACTIVE_HMI.TS.P00B_Alarm_Reset.State=0 AND RGP.PROG.Warning[i].State) ) THEN
+			RGP.PROG.Warning[i].State:=1;	
+		ELSE
+			RGP.PROG.Warning[i].State:=0;	
+		END_IF	
+	END_FOR
+
+//Alarm Logic 
+	FOR i:=1 TO 100 BY 1 DO
+		IF ( (Alarm_Trigger[i]=1 AND RGP.PROG.Alarms[i].Override=0) OR (RGP.ACTIVE_HMI.TS.P00B_Alarm_Reset.State=0 AND RGP.PROG.Alarms[i].State) ) THEN
+			RGP.PROG.Alarms[i].State:=1;	
+		ELSE
+			RGP.PROG.Alarms[i].State:=0;	
+		END_IF	
+	END_FOR
+
+//Alarm Present Logic 
+	RGP.PROG.Alarm_Present:=0;
+	FOR i:=1 TO 100 BY 1 DO
+		IF (RGP.PROG.Alarms[i].State=1) THEN
+			RGP.PROG.Alarm_Present:=1;	
+		END_IF	
+	END_FOR
+
+//Logic to check if a change is alarm or warning status has occured
+	RGP.PROG.AlarmState_1_16:=0;
+	RGP.PROG.AlarmState_17_32:=0;
+	RGP.PROG.AlarmState_33_48:=0;
+	RGP.PROG.AlarmState_49_64:=0;
+	RGP.PROG.AlarmState_65_80:=0;
+	RGP.PROG.AlarmState_81_96:=0;
+	RGP.PROG.AlarmState_97_112:=0;
+	RGP.PROG.WarningState_1_16:=0;
+	RGP.PROG.WarningState_17_32:=0;
+	RGP.PROG.WarningState_33_48:=0;
+	RGP.PROG.WarningState_49_64:=0;
+	RGP.PROG.WarningState_65_80:=0;
+	RGP.PROG.WarningState_81_96:=0;
+	RGP.PROG.WarningState_97_112:=0;
+	RGP.PROG.WarningState_113_128:=0;
+	RGP.PROG.WarningState_129_144:=0;
+	RGP.PROG.WarningState_145_160:=0;
+	RGP.PROG.WarningState_161_176:=0;
+	RGP.PROG.WarningState_177_192:=0;
+	RGP.PROG.WarningState_193_208:=0;
+	FOR i:=1 TO 100 BY 1 DO
+		IF (i>0 AND i<=16) THEN
+			RGP.PROG.AlarmState_1_16:= RGP.PROG.AlarmState_1_16 + BOOL_TO_UINT(RGP.PROG.Alarms[i].State)*INT_TO_UINT(i);
+		ELSIF (i>16 AND i<=32) THEN
+			RGP.PROG.AlarmState_17_32:= RGP.PROG.AlarmState_17_32 + BOOL_TO_UINT(RGP.PROG.Alarms[i].State)*INT_TO_UINT(i-16);
+		ELSIF (i>32 AND i<=48) THEN
+			RGP.PROG.AlarmState_33_48:= RGP.PROG.AlarmState_33_48 + BOOL_TO_UINT(RGP.PROG.Alarms[i].State)*INT_TO_UINT(i-32);
+		ELSIF (i>48 AND i<=64) THEN
+			RGP.PROG.AlarmState_49_64:= RGP.PROG.AlarmState_49_64 + BOOL_TO_UINT(RGP.PROG.Alarms[i].State)*INT_TO_UINT(i-48);
+		ELSIF (i>64 AND i<=80) THEN
+			RGP.PROG.AlarmState_65_80:= RGP.PROG.AlarmState_65_80 + BOOL_TO_UINT(RGP.PROG.Alarms[i].State)*INT_TO_UINT(i-64);
+		ELSIF (i>80 AND i<=96) THEN
+			RGP.PROG.AlarmState_81_96:= RGP.PROG.AlarmState_81_96 + BOOL_TO_UINT(RGP.PROG.Alarms[i].State)*INT_TO_UINT(i-80);
+		ELSIF (i>97 AND i<=112) THEN
+			RGP.PROG.AlarmState_97_112:= RGP.PROG.AlarmState_97_112 + BOOL_TO_UINT(RGP.PROG.Alarms[i].State)*INT_TO_UINT(i-96);
+		END_IF
+	END_FOR
+	FOR i:=1 TO 200 BY 1 DO
+		IF (i>0 AND i<=16) THEN
+			RGP.PROG.WarningState_1_16:= RGP.PROG.WarningState_1_16 + BOOL_TO_UINT(RGP.PROG.Warning[i].State)*INT_TO_UINT(i);
+		ELSIF (i>16 AND i<=32) THEN
+			RGP.PROG.WarningState_17_32:= RGP.PROG.WarningState_17_32 + BOOL_TO_UINT(RGP.PROG.Warning[i].State)*INT_TO_UINT(i-16);
+		ELSIF (i>32 AND i<=48) THEN
+			RGP.PROG.WarningState_33_48:= RGP.PROG.WarningState_33_48 + BOOL_TO_UINT(RGP.PROG.Warning[i].State)*INT_TO_UINT(i-32);
+		ELSIF (i>48 AND i<=64) THEN
+			RGP.PROG.WarningState_49_64:= RGP.PROG.WarningState_49_64 + BOOL_TO_UINT(RGP.PROG.Warning[i].State)*INT_TO_UINT(i-48);
+		ELSIF (i>64 AND i<=80) THEN
+			RGP.PROG.WarningState_65_80:= RGP.PROG.WarningState_65_80 + BOOL_TO_UINT(RGP.PROG.Warning[i].State)*INT_TO_UINT(i-64);
+		ELSIF (i>80 AND i<=96) THEN
+			RGP.PROG.WarningState_81_96:= RGP.PROG.WarningState_81_96 + BOOL_TO_UINT(RGP.PROG.Warning[i].State)*INT_TO_UINT(i-80);
+		ELSIF (i>96 AND i<=112) THEN
+			RGP.PROG.WarningState_97_112:= RGP.PROG.WarningState_97_112 + BOOL_TO_UINT(RGP.PROG.Warning[i].State)*INT_TO_UINT(i-96);
+		ELSIF (i>112 AND i<=128) THEN
+			RGP.PROG.WarningState_113_128:= RGP.PROG.WarningState_113_128 + BOOL_TO_UINT(RGP.PROG.Warning[i].State)*INT_TO_UINT(i-112);
+		ELSIF (i>128 AND i<=144) THEN
+			RGP.PROG.WarningState_129_144:= RGP.PROG.WarningState_129_144 + BOOL_TO_UINT(RGP.PROG.Warning[i].State)*INT_TO_UINT(i-128);
+		ELSIF (i>144 AND i<=160) THEN
+			RGP.PROG.WarningState_145_160:= RGP.PROG.WarningState_145_160 + BOOL_TO_UINT(RGP.PROG.Warning[i].State)*INT_TO_UINT(i-144);
+		ELSIF (i>160 AND i<=176) THEN
+			RGP.PROG.WarningState_161_176:= RGP.PROG.WarningState_161_176 + BOOL_TO_UINT(RGP.PROG.Warning[i].State)*INT_TO_UINT(i-160);
+		ELSIF (i>176 AND i<=192) THEN
+			RGP.PROG.WarningState_177_192:= RGP.PROG.WarningState_177_192 + BOOL_TO_UINT(RGP.PROG.Warning[i].State)*INT_TO_UINT(i-176);
+		ELSIF (i>192 AND i<=208) THEN
+			RGP.PROG.WarningState_193_208:= RGP.PROG.WarningState_193_208 + BOOL_TO_UINT(RGP.PROG.Warning[i].State)*INT_TO_UINT(i-192);
+		END_IF
+	END_FOR
+	
+	IF ( RGP.PROG.AlarmState_1_16 <> RGP.PROG.Old_AlarmState_1_16 OR RGP.PROG.AlarmState_17_32 <> RGP.PROG.Old_AlarmState_17_32 OR RGP.PROG.AlarmState_33_48 <> RGP.PROG.Old_AlarmState_33_48 OR RGP.PROG.AlarmState_49_64 <> RGP.PROG.Old_AlarmState_49_64 OR RGP.PROG.AlarmState_65_80 <> RGP.PROG.Old_AlarmState_65_80 OR RGP.PROG.AlarmState_81_96 <> RGP.PROG.Old_AlarmState_81_96 OR RGP.PROG.AlarmState_97_112 <> RGP.PROG.Old_AlarmState_97_112 ) THEN
+		Alarm_Warning_Change:=1;
+	ELSIF ( RGP.PROG.WarningState_1_16 <> RGP.PROG.Old_WarningState_1_16 OR RGP.PROG.WarningState_17_32 <> RGP.PROG.Old_WarningState_17_32 OR RGP.PROG.WarningState_33_48 <> RGP.PROG.Old_WarningState_33_48 OR RGP.PROG.WarningState_49_64 <> RGP.PROG.Old_WarningState_49_64 OR RGP.PROG.WarningState_65_80 <> RGP.PROG.Old_WarningState_65_80 OR RGP.PROG.WarningState_81_96 <> RGP.PROG.Old_WarningState_81_96 OR RGP.PROG.WarningState_97_112 <> RGP.PROG.Old_WarningState_97_112 OR RGP.PROG.WarningState_113_128 <> RGP.PROG.Old_WarningState_113_128 OR RGP.PROG.WarningState_129_144 <> RGP.PROG.Old_WarningState_129_144 OR RGP.PROG.WarningState_145_160 <> RGP.PROG.Old_WarningState_145_160 OR RGP.PROG.WarningState_161_176 <> RGP.PROG.Old_WarningState_161_176 OR RGP.PROG.WarningState_177_192 <> RGP.PROG.Old_WarningState_177_192 OR RGP.PROG.WarningState_193_208 <> RGP.PROG.Old_WarningState_193_208 ) THEN
+		Alarm_Warning_Change:=1;
+	END_IF
+	
+	IF (RGP.ACTIVE_HMI.TS.P00B_Alarm_Reset.State) THEN
+		Alarm_Warning_Change:=0;
+		RGP.PROG.Old_AlarmState_1_16:=RGP.PROG.AlarmState_1_16;
+		RGP.PROG.Old_AlarmState_17_32:=RGP.PROG.AlarmState_17_32;
+		RGP.PROG.Old_AlarmState_33_48:=RGP.PROG.AlarmState_33_48;
+		RGP.PROG.Old_AlarmState_49_64:=RGP.PROG.AlarmState_49_64;
+		RGP.PROG.Old_AlarmState_65_80:=RGP.PROG.AlarmState_65_80;
+		RGP.PROG.Old_AlarmState_81_96:=RGP.PROG.AlarmState_81_96;
+		RGP.PROG.Old_AlarmState_97_112:=RGP.PROG.AlarmState_97_112;
+		RGP.PROG.Old_WarningState_1_16:=RGP.PROG.WarningState_1_16;
+		RGP.PROG.Old_WarningState_17_32:=RGP.PROG.WarningState_17_32;
+		RGP.PROG.Old_WarningState_33_48:=RGP.PROG.WarningState_33_48;
+		RGP.PROG.Old_WarningState_49_64:=RGP.PROG.WarningState_49_64;
+		RGP.PROG.Old_WarningState_65_80:=RGP.PROG.WarningState_65_80;
+		RGP.PROG.Old_WarningState_81_96:=RGP.PROG.WarningState_81_96;
+		RGP.PROG.Old_WarningState_97_112:=RGP.PROG.WarningState_97_112;
+		RGP.PROG.Old_WarningState_113_128:=RGP.PROG.WarningState_113_128;
+		RGP.PROG.Old_WarningState_129_144:=RGP.PROG.WarningState_129_144;
+		RGP.PROG.Old_WarningState_145_160:=RGP.PROG.WarningState_145_160;
+		RGP.PROG.Old_WarningState_161_176:=RGP.PROG.WarningState_161_176;
+		RGP.PROG.Old_WarningState_177_192:=RGP.PROG.WarningState_177_192;
+		RGP.PROG.Old_WarningState_193_208:=RGP.PROG.WarningState_193_208;
+	END_IF
+
+	RGP.PROG.Alarm_Warning_Change := Alarm_Warning_Change;]]></ST>
+    </Implementation>
+    <LineIds Name="Alarms_Warnings">
+      <LineId Id="3" Count="3" />
+      <LineId Id="1420" Count="0" />
+      <LineId Id="1426" Count="0" />
+      <LineId Id="1576" Count="0" />
+      <LineId Id="1427" Count="0" />
+      <LineId Id="1430" Count="0" />
+      <LineId Id="1428" Count="0" />
+      <LineId Id="1431" Count="0" />
+      <LineId Id="1429" Count="0" />
+      <LineId Id="1433" Count="0" />
+      <LineId Id="1539" Count="0" />
+      <LineId Id="1560" Count="0" />
+      <LineId Id="1559" Count="0" />
+      <LineId Id="1562" Count="0" />
+      <LineId Id="1537" Count="1" />
+      <LineId Id="1536" Count="0" />
+      <LineId Id="1573" Count="2" />
+      <LineId Id="1501" Count="0" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="491" Count="0" />
+      <LineId Id="1435" Count="0" />
+      <LineId Id="1577" Count="0" />
+      <LineId Id="1440" Count="5" />
+      <LineId Id="80" Count="0" />
+      <LineId Id="1535" Count="0" />
+      <LineId Id="492" Count="0" />
+      <LineId Id="125" Count="14" />
+      <LineId Id="1414" Count="0" />
+      <LineId Id="1193" Count="7" />
+      <LineId Id="140" Count="0" />
+      <LineId Id="1415" Count="0" />
+      <LineId Id="141" Count="0" />
+      <LineId Id="1579" Count="0" />
+      <LineId Id="1578" Count="0" />
+      <LineId Id="1504" Count="0" />
+      <LineId Id="1525" Count="5" />
+      <LineId Id="186" Count="0" />
+      <LineId Id="493" Count="0" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="1540" Count="0" />
+      <LineId Id="494" Count="0" />
+      <LineId Id="220" Count="0" />
+      <LineId Id="1569" Count="0" />
+      <LineId Id="1549" Count="0" />
+      <LineId Id="1551" Count="0" />
+      <LineId Id="1508" Count="0" />
+      <LineId Id="1552" Count="3" />
+      <LineId Id="1557" Count="1" />
+      <LineId Id="1556" Count="0" />
+      <LineId Id="1563" Count="0" />
+      <LineId Id="1418" Count="0" />
+      <LineId Id="1565" Count="2" />
+      <LineId Id="1571" Count="1" />
+      <LineId Id="1580" Count="0" />
+      <LineId Id="1570" Count="0" />
+      <LineId Id="1568" Count="0" />
+      <LineId Id="287" Count="0" />
+      <LineId Id="1419" Count="0" />
+      <LineId Id="1417" Count="0" />
+      <LineId Id="495" Count="0" />
+      <LineId Id="288" Count="129" />
+      <LineId Id="419" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

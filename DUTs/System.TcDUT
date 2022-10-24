@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <DUT Name="System" Id="{67686831-c232-47a3-ae13-cc89ab6c9423}">
+    <Declaration><![CDATA[TYPE System :
+STRUCT
+
+	EN1000 : Service_Cart;
+	ACTIVE_HMI : ACT_HMI;
+	PROG : PROGRAM_VAR;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

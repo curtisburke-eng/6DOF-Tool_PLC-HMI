@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <DUT Name="Motion_Axis" Id="{109a45fc-c8e8-4b8e-9234-64259741bfc4}">
+    <Declaration><![CDATA[TYPE Motion_Axis :
+STRUCT
+//General Inputs and Outputs
+	IN_Enable_Control: BOOL:=0;
+	IN_Func_1: BOOL:=0;	
+	IN_Func_2: BOOL:=0;	
+	IN_Func_3: BOOL:=0;	
+	IN_Func_4: BOOL:=0;	
+	IN_Drive_Error: BOOL:=0;
+	OUT_Analog: Analog_Out_Var; //Output Analog Signal, -100 to 100 Real value
+	OUT_Enable: BOOL:=0;
+	OUT_DO2: BOOL:=0;
+	OUT_DO3: BOOL:=0;
+	OUT_DO4: BOOL:=0;
+	OUT_DO5: BOOL:=0;
+	IN_Closed_Open_Loop: BOOL := 0; //0=Open Loop Control, 1=Closed Loop Control
+	Feedback: Axis_Position;
+	RUN_Enable_Delay_TON:TON; (**)
+
+	IN_Current_Limit_AN_EN: BOOL;
+	IN_Current_Limit: REAL; //Percent of current limit relative to continuous current
+	OUT_CurLim_Analog: Analog_Out_Var; //Output Analog Signal for current limit, 0 to 100 Real value
+	
+//Open Loop Control Related	
+	OL_Move_Type: INT:=0; //0=jog type move, 1=bump type move
+	OL_IN_Analog: REAL:=0; //Input analog valve -100 to 100 signal
+	OL_IN_Calc_Ref: INT:=1; //Selects which scale and offset values to use
+	OL_RUN_Analog_Scale: ARRAY[1..10] OF REAL:=[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0];
+	OL_RUN_Analog_Offset: ARRAY[1..10] OF REAL:=[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0];
+	OL_IN_Slave_Command: REAL:=0;
+	OL_IN_Slave_Enable: BOOL:=0;
+	OL_RUN_Slave_Scale: REAL:=0;
+	OL_RUN_Slave_Offset_Dist: REAL:=0;
+
+	
+	OL_IN_Bump_Duration:TIME := T#1MS;
+	OL_IN_Bump_Trigger: BOOL := 0;
+	OL_RUN_Bump_Track: BOOL:=0;
+	OL_RUN_Bump_TOF:TOF;(*Timer for Bump Type of Move*)
+
+//Closed Loop Control Related	
+	CL_Move_Type: INT:=1; 				//1=velocity loop dpos, 2=velocity loop dpos with target
+	CL_IN_Vel: REAL:=0; 				//Input Velocity
+	CL_IN_Delt_Reset: BOOL:=FALSE; 		//Bit to reset the delta position error
+	CL_RUN_Max_Velp: REAL:=100; 		//Maximum speed in the positive direction
+	CL_RUN_Max_Veln: REAL:=100; 		//Maximum speed in the negative direction
+	CL_RUN_Max_Velp_Updated: REAL:=100; //Maximum speed in the positive direction
+	CL_RUN_Max_Veln_Updated: REAL:=100; //Maximum speed in the negative direction
+	CL_RUN_Pgain: ARRAY[0..10] OF REAL;
+	CL_RUN_Dgain: ARRAY[0..10] OF REAL;
+	CL_RUN_Igain: ARRAY[0..10] OF REAL;
+	CL_RUN_VFFgain: ARRAY[0..10] OF REAL;
+	CL_RUN_Vel_del: REAL:=0;
+	CL_RUN_Pos_del: REAL:=0;
+	CL_RUN_Pos_target: REAL:=0;
+	CL_RUN_EPos_del: REAL:=0;
+	CL_RUN_TON: TON;
+	CL_Vel_Max_Adjust_TON:TON;
+	CL_Enable_Max_Vel_Adjustment: BOOL:=0;
+
+	CL_IN_Pos_target: REAL:=0; //Input Target Position
+	CL_IN_Decel_Time: REAL:=2; //Input Deceleration Time
+	CL_RUN_direction: BOOL:=0; //Start of Direction Movement
+	CL_RUN_Position_Reached: BOOL:=0;
+	CL_RUN_Position_Reached_tolerance: REAL:=0.0;
+
+	CL_IN_Slave_Command: REAL:=0;
+	CL_IN_Slave_Enable: BOOL:=0;
+	CL_RUN_Slave_Scale: REAL:=0;
+	CL_RUN_Slave_Offset_Dist: REAL:=0;
+	CL_RUN_VEL_DELAY: TON;
+	
+//EOT Limits Inputs and Errors
+	IN_EOT_POS:BOOL:=0;
+	IN_EOT_NEG:BOOL:=0;
+	OUT_POS_EOT_FAULT:BOOL:=0;
+	OUT_NEG_EOT_FAULT:BOOL:=0;
+
+//Maximum Feedback Limits
+	EOT_POS_READING:REAL:=0;
+	EOT_NEG_READING:REAL:=0;
+	
+//Soft EOT Limits Inputs and Errors TO FURTHER DEVELOP LATER
+	IN_SOFT_EOT_ENABLE:BOOL:=0;
+	IN_SOFT_EOT_POS:REAL:=0;
+	IN_SOFT_EOT_NEG:REAL:=0;
+	OUT_POS_SOFT_EOT_FAULT:BOOL:=0;
+	OUT_NEG_SOFT_EOT_FAULT:BOOL:=0;
+
+//Maximum Following Error for closed loop
+	Max_Following_Position_Error:REAL:=0;	//For future development to help determine axis following errors
+	
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

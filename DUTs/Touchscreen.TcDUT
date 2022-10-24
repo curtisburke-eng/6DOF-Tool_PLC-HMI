@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <DUT Name="Touchscreen" Id="{e6d4ae53-a9f3-4106-8ede-47e713168cad}">
+    <Declaration><![CDATA[  TYPE Touchscreen : 
+	STRUCT
+		Station_Active 	: INT := 0;
+		Active_Panel 	: INT := 0;
+		CurrentVisu 	: STRING(80);
+		//heartbeat : BOOL;
+		//Nor_Ops_Last_Panel : INT;
+		//HEARTBEAT_MONITOR_TON : ST_TON;
+		//HEARTBEAT_LAST_STATE : BOOL;
+		//HEARTBEAT_ERROR : BOOL;
+
+// Global : ALL Screens
+		// Buttons 
+		P00B_Alarm_Reset : TS_Component;
+		// Indicators/Displays
+		P00D_Station_Status : TS_Component;
+		P00D_Alarm_Status : TS_Component;
+		P00_Alarm_Cycle_Timer : TON;
+		P00_current_cycle_alarm : INT;
+		
+		//P00_Return_to_Home_Screen : TS_Component;
+					
+// Screen 01 : Home Screen
+		// Buttons  
+		P01B_Calibrate : TS_Component;
+		P01B_MotorSpeeds : TS_Component;
+		// Indicators/Displays
+		P01D_TiltAngle1 : TS_Component;
+		P01D_TiltAngle2 : TS_Component;
+		
+		P01D_LoadCell1 : TS_Component;
+		P01D_LoadCell2 : TS_Component;
+		P01D_LoadCell3 : TS_Component;
+		
+		P01D_XTRANS_Displacement : TS_Component;
+		P01D_YTRANS_Displacement : TS_Component;
+		
+// Screen 2 : Calibration Screen
+		// Buttons
+		P12B_HOME_SCREEN : TS_Component;		
+		P12B_Calibrate_Jack1 : TS_Component;
+		P12B_Calibrate_Jack2 : TS_Component;
+		P12B_Calibrate_Jack3 : TS_Component;
+		P12B_Calibrate_PosTool_RotZ : TS_Component;
+		P12B_Calibrate_MonTool_RotZ : TS_Component;		
+		P12B_Calibrate_XTRANS : TS_Component;
+		P12B_Calibrate_YTRANS : TS_Component;
+		
+// Screen 3 : Motor Speed Selection Screen		
+		// Buttons
+		P13B_HOME_SCREEN : TS_Component; 
+		P13B_TRANSX_SPEED_Toggle : TS_Component;
+		P13B_TRANSY_SPEED_Toggle : TS_Component;
+		P13B_All_JACKS_SPEED_Toggle : TS_Component;
+		P13B_POS_TOOL_ZROT_SPEED_Toggle : TS_Component;
+		P13B_MON_TOOL_ZROT_SPEED_Toggle : TS_Component;
+				
+ 	END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

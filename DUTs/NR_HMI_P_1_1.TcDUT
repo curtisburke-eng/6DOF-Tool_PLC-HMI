@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.12">
+  <DUT Name="NR_HMI_P_1_1" Id="{a12b07de-3fb8-47ab-a992-3c8be8eaa700}">
+    <Declaration><![CDATA[(*This structure is for a Touchscreen Application*)
+TYPE NR_HMI_P_1_1 :
+STRUCT
+	Heartbeat: BOOL:=0;
+	
+	EN1900_HEALTHY : BOOL;
+
+	PLC1915_Connection_Status : BOOL;
+	
+	PB1905_EMER_STOP: BOOL;
+	
+	SS1940_DISABLE_NRCONTROL: BOOL;
+	SS1940_REQUEST_NRCONTROL: BOOL;
+	
+	DV1917_JS_Y_AXIS_VALUE:REAL;
+	DV1917_JS_Y_AXIS_ACTIVE: BOOL;
+	DV1917_JS_X_AXIS_VALUE:REAL;
+	DV1917_JS_X_AXIS_ACTIVE: BOOL;
+	DV1917_JS_Z_AXIS_VALUE:REAL;
+	DV1917_JS_Z_AXIS_ACTIVE: BOOL;
+
+	DV1927_JS_Y_AXIS_VALUE:REAL;
+	DV1927_JS_Y_AXIS_ACTIVE: BOOL;
+	DV1927_JS_X_AXIS_VALUE:REAL;
+	DV1927_JS_X_AXIS_ACTIVE: BOOL;
+	DV1927_JS_Z_AXIS_VALUE:REAL;
+	DV1927_JS_Z_AXIS_ACTIVE: BOOL;
+
+	DV1938_JS_Y_AXIS_VALUE:REAL;
+	DV1938_JS_Y_AXIS_ACTIVE: BOOL;
+	DV1938_JS_X_AXIS_VALUE:REAL;
+	DV1938_JS_X_AXIS_ACTIVE: BOOL;
+	DV1938_JS_Z_AXIS_VALUE:REAL;
+	DV1938_JS_Z_AXIS_ACTIVE: BOOL;
+
+	//Touchscreen Data
+		Station_Active : INT:=0;
+		Active_Panel : INT:=0;
+		CurrentVisu : STRING(80);
+		Nor_Ops_Last_Panel : INT;
+		HEARTBEAT_LAST_STATE : BOOL;
+		HEARTBEAT_ERROR : BOOL;
+
+		P00B_Alarm_Reset_State : BOOL;
+
+		P01B_Login_State : BOOL;
+		P01B_Settings_Overrides_State : BOOL;
+		P01B_System_Log_State : BOOL;
+		P01B_System_Status_State : BOOL;
+		P01B_Ops_State : BOOL;
+		P01B_Logout_State : BOOL;
+
+		P02_User : INT;
+		P02B_Return_State : BOOL;
+		P02B_0_State : BOOL;
+		P02B_1_State : BOOL;
+		P02B_2_State : BOOL;
+		P02B_3_State : BOOL;
+		P02B_4_State : BOOL;
+		P02B_5_State : BOOL;
+		P02B_6_State : BOOL;
+		P02B_7_State : BOOL;
+		P02B_8_State : BOOL;
+		P02B_9_State : BOOL;
+		P02B_back_State : BOOL;
+		P02B_clr_State : BOOL;
+		P02B_login_State : BOOL;
+		P02B_User1_State : BOOL;
+		P02B_User2_State : BOOL;
+		P02B_User3_State : BOOL;
+		P02_selected_user : INT;
+		P02_Entered_Password : STRING(10);
+		P02_login_error : BOOL;
+
+		P03B_Return_State : BOOL;
+		P03B_Save_Status_State : BOOL;
+		
+		P12_Home_Screen_State : BOOL;
+		P12_Tool_Ops_State : BOOL;
+		
+		P12_JSFARLEFT_UP_State : BOOL;
+		P12_JSFARLEFT_CW_State : BOOL;
+		P12_JSFARLEFT_RT_State : BOOL;
+		P12_JSFARLEFT_DN_State : BOOL;
+		P12_JSFARLEFT_CCW_State : BOOL;
+		P12_JSFARLEFT_LT_State : BOOL;
+		P12_JSFARLEFT_SP_State : BOOL;
+		P12_JSFARLEFT_DISP_State : BOOL;
+		
+		P12_JSLEFT_UP_State : BOOL;
+		P12_JSLEFT_CW_State : BOOL;
+		P12_JSLEFT_RT_State : BOOL;
+		P12_JSLEFT_DN_State : BOOL;
+		P12_JSLEFT_CCW_State : BOOL;
+		P12_JSLEFT_LT_State : BOOL;
+		P12_JSLEFT_SP_State : BOOL;
+		P12_JSLEFT_DISP_State : BOOL;
+		
+		P12_JSRIGHT_UP_State : BOOL;
+		P12_JSRIGHT_CW_State : BOOL;
+		P12_JSRIGHT_RT_State : BOOL;
+		P12_JSRIGHT_DN_State : BOOL;
+		P12_JSRIGHT_CCW_State : BOOL;
+		P12_JSRIGHT_LT_State : BOOL;
+		P12_JSRIGHT_SP_State : BOOL;
+		P12_JSRIGHT_DISP_State : BOOL;
+		
+		P12_DISP_1_State : BOOL;
+		P12_DISP_2_State : BOOL;
+		P12_DISP_3_State : BOOL;
+		P12_DISP_4_State : BOOL;
+		P12_DISP_5_State : BOOL;
+		P12_DISP_6_State : BOOL;
+		P12_DISP_7_State : BOOL;
+		P12_DISP_8_State : BOOL;
+		P12_Button_1_State : BOOL;
+		P12_Button_2_State : BOOL;
+		P12_Button_3_State : BOOL;
+		P12_Button_4_State : BOOL;
+		P12_Button_5_State : BOOL;
+		P12_Button_6_State : BOOL;
+		P12_Button_7_State : BOOL;
+		P12_Button_8_State : BOOL;
+
+		P53_RETURN_State : BOOL;
+		P53_SELECT_B1_State : BOOL;
+		P53_SELECT_B2_State : BOOL;
+		P53_SELECT_B3_State : BOOL;
+		P53_SELECT_B4_State : BOOL;
+		P53_SELECT_B5_State : BOOL;
+		P53_SELECT_B6_State : BOOL;
+		P53_SELECT_B7_State : BOOL;
+		P53_SELECT_B8_State : BOOL;
+		P53_SELECT_B9_State : BOOL;
+		P53_SELECT_B10_State : BOOL;
+		P53_SELECT_B11_State : BOOL;
+		P53_SELECT_B12_State : BOOL;
+		P53_SELECT_B13_State : BOOL;
+		P53_SELECT_B14_State : BOOL;
+		P53_SELECT_B15_State : BOOL;
+		P53_SELECT_B16_State : BOOL;
+		P53_SELECT_B17_State : BOOL;
+		P53_SELECT_B18_State : BOOL;
+		P53_SELECT_B19_State : BOOL;
+		P53_SELECT_B20_State : BOOL;
+		P53_W1_B1_State : BOOL;
+		P53_W1_B2_State : BOOL;
+		P53_W1_B3_State : BOOL;
+		P53_W1_B4_State : BOOL;
+		P53_W2_B1_State : BOOL;
+		P53_W2_B2_State : BOOL;
+		P53_W2_B3_State : BOOL;
+		P53_W2_B4_State : BOOL;
+		P53_W3_B1_State : BOOL;
+		P53_W4_B1_State : BOOL;
+		P53_W4_B2_State : BOOL;
+		P53_W4_B3_State : BOOL;
+		P53_W4_B4_State : BOOL;
+		P53_W4_B5_State : BOOL;
+		P53_W5_B1_State : BOOL;
+		P53_W5_B2_State : BOOL;
+		P53_W5_B3_State : BOOL;
+		P53_W5_B4_State : BOOL;
+		P53_OVERRIDE_1_State : BOOL;
+		P53_OVERRIDE_2_State : BOOL;
+		P53_OVERRIDE_3_State : BOOL;
+		P53_OVERRIDE_4_State : BOOL;
+		P53_OVERRIDE_5_State : BOOL;
+		P53_OVERRIDE_6_State : BOOL;
+		P53_OVERRIDE_7_State : BOOL;
+		P53_OVERRIDE_8_State : BOOL;
+		P53_OVERRIDE_9_State : BOOL;
+		P53_OVERRIDE_10_State : BOOL;
+		P53_Manager_Password_State : BOOL;
+		P53_Operator_Password_State : BOOL;
+		P53_ENTERED_Man_Pass: UDINT:=0;
+		P53_ENTERED_Man_Pass_Changed: BOOL:=0;
+		P53_ENTERED_Oper_Pass: UDINT:=0;
+		P53_ENTERED_Oper_Pass_Changed: BOOL:=0;
+		P53_Minimize_Vis_State : BOOL;
+		P53_HPU_WARN_LEVEL_State : BOOL;
+		P53_ENTERED_HPU_WARN_LEVEL: REAL:=0;
+		P53_ENTERED_HPU_WARN_LEVEL_Changed: BOOL:=0;
+		P53_ENTERED_FORCE_OFFSET_X: REAL:=-100000;
+		P53_ENTERED_FORCE_OFFSET_X_Changed: BOOL:=0;
+		P53_ENTERED_FORCE_OFFSET_Y: REAL:=-100000;
+		P53_ENTERED_FORCE_OFFSET_Y_Changed: BOOL:=0;
+		P53_ENTERED_FORCE_OFFSET_Z: REAL:=-100000;
+		P53_ENTERED_FORCE_OFFSET_Z_Changed: BOOL:=0;
+
+	//TO BE UPDATED
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,488 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <POU Name="Touchscreen_Instance" Id="{15b2263b-02e2-49e1-a8f3-4b7ce9bb020f}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Touchscreen_Instance (*: INT*)
+
+VAR
+	//P53_HPU_LEVEL_Change_TON:TON;
+	//P53_Man_Pass_Change_TON:TON;
+	//P53_Oper_Pass_Change_TON:TON;
+	//P53_FORCE_OFFSET_X_Change_TON:TON;
+	//P53_FORCE_OFFSET_Y_Change_TON:TON;
+	//P53_FORCE_OFFSET_Z_Change_TON:TON;
+
+	LAST_CYCLE_HMI_PANEL:INT:=0;
+	LAST_P53_STATE:INT:=0;
+	INIT:INT:=0;
+	Minimize: NT_StartProcess;
+	bstart: BOOL:=0;
+	STRFOUR: STRING(4);
+	STRFIVE: STRING(5);
+	STRSIX: STRING(6);
+	STRSEVEN: STRING(7);
+	i:INT;
+	Information_Dislay: INT:=1;
+	P03_Status_Cycle_TON: TON;
+	P03_2_Cycle: INT:=1;
+	P03_3_Cycle: INT:=1;
+	P03_4_Cycle: INT:=1;
+	P03_6_Cycle: INT:=1;
+	P03_9_Cycle: INT:=1;
+	j:INT;
+	mult:BOOL;
+	comp: BOOL;	
+	
+
+//OLD VAR 
+  (*	P14_Speed_Change_TON:TON;
+	P14_Trim_Change_TON:TON;
+	P14_Feed_Change_TON:TON;
+	STEPPER_POS_ERROR: REAL:=4;
+	DC_POS_ERROR: REAL:=4;
+
+	testint: INT :=0;
+	testintA:INT :=0;
+	temp_text:STRING:='';
+	P12_RZ_POLY_SCALE: REAL:=0;
+	P12_RZ_POLY_Ystart:REAL:=0;
+	P12_RZ_POLY_Xstart:REAL:=0;
+	P12_TR_POLY_SCALE: REAL:=0;
+	P12_TR_POLY_Ystart:REAL:=0;
+	P12_TR_POLY_Xstart:REAL:=0;
+	P12_RZ_POLY_YFloor_Offset:REAL:=0;
+	P12_Side_Scale:REAL:=0;
+	temp: REAL:=0;
+	P13_Max_Speed:REAL;
+	P13_Min_Speed:REAL;
+	P13_Speed_Change_TON:TON;
+	P52_Level_Change_TON:TON;
+	P52_LOAD_CELL_LIMIT_Change_TON:TON;
+	P51_Man_Pass_Change_TON:TON;
+	P51_Oper_Pass_Change_TON:TON;
+	P52_FX_Offset_Change_TON:TON;
+	P52_FY_Offset_Change_TON:TON;
+	P52_FZ_Offset_Change_TON:TON;
+	P52_WRTC_Change_TON:TON;
+	P52_WPTC_Change_TON:TON;
+	P52_VDTC_Change_TON:TON;
+
+	HMI_RGPDATA_Heartbeat_Healthy: INT;*)
+END_VAR
+
+(*All VAR_IN_OUT variables have been moved to the end of the declaration due to compatibility reasons*)
+VAR_IN_OUT
+	TS_IN: Touchscreen;
+	RGP: System;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// MANAGES ACTIVE HMI STATION STATUS
+	IF (TRUE) THEN
+		IF ( RGP.PROG.Program_Location=0 AND RGP.PROG.HMI_ACTIVE_LOC=1) THEN
+			TS_IN.Station_Active := 1;
+		ELSE
+			TS_IN.Station_Active := 0;
+		END_IF
+		
+		IF ( (TS_IN.Station_Active=0) AND (TS_IN.Active_Panel<>1) )  THEN
+			TS_IN.Active_Panel:=1;
+		END_IF
+	END_IF
+
+// HMI COMPONENTS
+	//P00, Base Window Controls
+		HMI_Component(COMP:=TS_IN.P00B_Alarm_Reset, Act_Pnl:=0, Loc_Pnl:=0);
+		//HMI_Component(COMP:=TS_IN.P00D_Active_Panel, Act_Pnl:=0, Loc_Pnl:=0);
+		HMI_Component(COMP:=TS_IN.P00D_Alarm_Status, Act_Pnl:=0, Loc_Pnl:=0);
+		HMI_Component(COMP:=TS_IN.P00D_Station_Status, Act_Pnl:=0, Loc_Pnl:=0);
+		
+	//P01, Home Window Controls
+		HMI_Component(COMP:=TS_IN.P01B_Calibrate, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=1);
+		HMI_Component(COMP:=TS_IN.P01B_MotorSpeeds, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=1);
+		HMI_Component(COMP:=TS_IN.P01D_TiltAngle1, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=1);
+		HMI_Component(COMP:=TS_IN.P01D_TiltAngle2, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=1);
+		HMI_Component(COMP:=TS_IN.P01D_LoadCell1, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=1);
+		HMI_Component(COMP:=TS_IN.P01D_LoadCell2, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=1);
+		HMI_Component(COMP:=TS_IN.P01D_LoadCell3, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=1);		
+		HMI_Component(COMP:=TS_IN.P01D_XTRANS_Displacement, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=1);
+		HMI_Component(COMP:=TS_IN.P01D_YTRANS_Displacement, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=1);
+	
+	//P12, Calibrate Controls
+		HMI_Component(COMP:=TS_IN.P12B_HOME_SCREEN, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=2);
+		HMI_Component(COMP:=TS_IN.P12B_Calibrate_Jack1, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=2);
+		HMI_Component(COMP:=TS_IN.P12B_Calibrate_Jack2, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=2);
+		HMI_Component(COMP:=TS_IN.P12B_Calibrate_Jack3, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=2);
+		HMI_Component(COMP:=TS_IN.P12B_Calibrate_MonTool_RotZ, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=2);
+		HMI_Component(COMP:=TS_IN.P12B_Calibrate_PosTool_RotZ, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=2);
+		HMI_Component(COMP:=TS_IN.P12B_Calibrate_XTRANS, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=2);
+		HMI_Component(COMP:=TS_IN.P12B_Calibrate_YTRANS, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=2);
+		
+	//P13, Motor Speeds Controls
+		HMI_Component(COMP:=TS_IN.P13B_HOME_SCREEN, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=3);
+		HMI_Component(COMP:=TS_IN.P13B_TRANSX_SPEED_Toggle, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=3);
+		HMI_Component(COMP:=TS_IN.P13B_TRANSY_SPEED_Toggle, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=3);
+		HMI_Component(COMP:=TS_IN.P13B_All_JACKS_SPEED_Toggle, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=3);
+		HMI_Component(COMP:=TS_IN.P13B_POS_TOOL_ZROT_SPEED_Toggle, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=3);
+		HMI_Component(COMP:=TS_IN.P13B_MON_TOOL_ZROT_SPEED_Toggle, Act_Pnl:=TS_IN.Active_Panel, Loc_Pnl:=3);
+		
+		
+// P00, BASE WINDOW LOGIC
+	// Visibility Logic
+		IF(TS_IN.Station_Active=0) THEN
+			TS_IN.P00B_Alarm_Reset.display_state:=0;
+		ELSE
+			TS_IN.P00B_Alarm_Reset.display_state:=1;
+		END_IF
+
+// LOGIC FOR ALARMS AND WARNINGS
+		IF (TRUE) THEN
+			j:=0;
+			i:=1;
+			FOR i:=1 TO 100 BY 1 DO
+				IF(RGP.PROG.Alarms[i].State=TRUE) THEN
+					j:=j+1;
+				END_IF	
+			END_FOR
+			i:=1;
+			FOR i:=1 TO 200 BY 1 DO
+				IF(RGP.PROG.Warning[i].State=TRUE) THEN
+					j:=j+1;
+				END_IF	
+			END_FOR
+			IF(j>1) THEN
+				mult:=1;
+			ELSE
+				mult:=0;
+			END_IF
+			
+			TS_IN.P00_Alarm_Cycle_Timer();
+			IF (mult AND TS_IN.P00_Alarm_Cycle_Timer.Q) THEN
+				TS_IN.P00_current_cycle_alarm := TS_IN.P00_current_cycle_alarm + 1;
+				TS_IN.P00_Alarm_Cycle_Timer.IN :=0;
+			ELSIF (mult AND TS_IN.P00_Alarm_Cycle_Timer.IN = 0) THEN
+				TS_IN.P00_Alarm_Cycle_Timer.IN :=1;
+			ELSIF (mult=0) THEN
+				TS_IN.P00_Alarm_Cycle_Timer.IN :=0;
+				TS_IN.P00_current_cycle_alarm := 0;
+			END_IF
+			
+			comp:=0;
+			i:=1;
+			FOR i:=1 TO 200 BY 1 DO
+				IF(RGP.PROG.Warning[i].State AND ( (mult=0) OR (mult AND TS_IN.P00_current_cycle_alarm <= i)))THEN
+					TS_IN.P00D_Alarm_Status.display_text := RGP.PROG.Warning[i].Name;
+					IF (mult=0) THEN
+						TS_IN.P00D_Alarm_Status.display_state := 3;
+					ELSE		
+						TS_IN.P00D_Alarm_Status.display_state := 7;
+						TS_IN.P00_current_cycle_alarm := i;
+					END_IF
+					i:=201;
+					comp:=1;
+				END_IF
+			END_FOR
+			IF (COMP=0) THEN
+				i:=1;
+				FOR i:=1 TO 100 BY 1 DO
+					IF(RGP.PROG.Alarms[i].State AND ( (mult=0) OR (mult AND TS_IN.P00_current_cycle_alarm <= (i+200))))THEN
+						TS_IN.P00D_Alarm_Status.display_text := RGP.PROG.Alarms[i].Name;
+						IF (mult=0) THEN
+							TS_IN.P00D_Alarm_Status.display_state := 2;
+						ELSE		
+							TS_IN.P00D_Alarm_Status.display_state := 5;
+							TS_IN.P00_current_cycle_alarm := (i+200);
+						END_IF
+						i:=101;
+						comp:=1;
+					END_IF
+				END_FOR	
+			END_IF
+			IF(mult AND comp=0) THEN
+				TS_IN.P00_current_cycle_alarm := 0;
+			ELSIF(mult=0 AND comp=0) THEN
+				TS_IN.P00D_Alarm_Status.display_text := 'System Healthy';
+				TS_IN.P00D_Alarm_Status.display_state := 1;
+			END_IF
+		END_IF
+// CONTROL SCREEN SPECIFIC LOGIC
+	IF (TS_IN.Active_Panel = 1) THEN //Home Screen
+		//TS_IN.P00D_Active_Panel.display_text:='Home Screen';
+		TS_IN.CurrentVisu:='HOME_SCREEN';
+		
+		IF (INIT=0) THEN
+			RGP.PROG.HMI_OPS_LAST_SCREEN:=0;
+		END_IF
+
+		//IMAGE CONTROL
+			(*	//Controls the central image		
+					IF (RGP.PROG.P12_Manip_Mode	=0) THEN
+						TS_IN.P12_IMAGE.bitmap_ID:='ImagePool.RGP_BASE';
+					ELSIF (RGP.PROG.P12_Manip_Mode	=1) THEN
+						TS_IN.P12_IMAGE.bitmap_ID:='ImagePool.RGP_MANIP_L';
+					END_IF
+			*)	
+		// Visibility Logic
+			IF (TS_IN.Station_Active=0) THEN
+				TS_IN.P01B_Calibrate.display_state := 0;
+				TS_IN.P01B_MotorSpeeds.display_state := 0;
+			ELSE
+				TS_IN.P01B_Calibrate.display_state := 1;
+				TS_IN.P01B_MotorSpeeds.display_state := 1;
+			END_IF
+		
+		// Display Values					//FIXME: CALCUALTIONS TO CONVERT VALUES TO DESIRED UNITS
+			//Tilt Sensor 1
+				TS_IN.P01D_TiltAngle1.invisible:=0;
+				STRFIVE:=REAL_TO_STRING(RGP.EN1000.DV1390_TILT_SENSOR1.Value);
+				TS_IN.P01D_TiltAngle1.display_text := CONCAT('Axis 1 Tilt:',CONCAT(STRFIVE,'deg'));
+			
+			//Tilt Sensor 2
+				TS_IN.P01D_TiltAngle2.invisible:=0;
+				STRFIVE:=REAL_TO_STRING(RGP.EN1000.DV1396_TILT_SENSOR2.Value);
+				TS_IN.P01D_TiltAngle2.display_text := CONCAT('Axis 2 Tilt:',CONCAT(STRFIVE,'deg'));
+			
+			//Load Cell 1
+				TS_IN.P01D_LoadCell1.invisible:=0;
+				STRFIVE:=REAL_TO_STRING(RGP.EN1000.DV1375_LOAD_CELL_JACK1_FZ.Value);
+				TS_IN.P01D_LoadCell1.display_text := CONCAT('Load Cell 1:',CONCAT(STRFIVE,'N'));		// FIXME: CHECK LOAD CELL OUTPUT UNITS
+			
+			//Load Cell 2
+				TS_IN.P01D_LoadCell2.invisible:=0;
+				STRFIVE:=REAL_TO_STRING(RGP.EN1000.DV1379_LOAD_CELL_JACK2_FZ.Value);
+				TS_IN.P01D_LoadCell2.display_text := CONCAT('Load Cell 2:',CONCAT(STRFIVE,'N'));		// FIXME: CHECK LOAD CELL OUTPUT UNITS
+			
+			//Load Cell 3
+				TS_IN.P01D_LoadCell3.invisible:=0;
+				STRFIVE:=REAL_TO_STRING(RGP.EN1000.DV1385_LOAD_CELL_JACK3_FZ.Value);
+				TS_IN.P01D_LoadCell3.display_text := CONCAT('Load Cell 3:',CONCAT(STRFIVE,'N'));		// FIXME: CHECK LOAD CELL OUTPUT UNITS
+			
+			//X DISPLACEMENT
+				TS_IN.P01D_XTRANS_Displacement.invisible := 0;
+				STRFIVE:=REAL_TO_STRING(RGP.EN1000.DV1150_TRANSX_DRIVE.Feedback.Position);				// FIXME: CHECK IF "POSITION" IS THE RIGHT VAR TO CALL
+				TS_IN.P01D_XTRANS_Displacement.display_text := CONCAT('Load Cell 3:',CONCAT(STRFIVE,'N'));
+	
+			//Y DISPLACEMENT
+				TS_IN.P01D_YTRANS_Displacement.invisible := 0;
+				STRFIVE:=REAL_TO_STRING(RGP.EN1000.DV1175_TRANSY_DRIVE.Feedback.Position);				// FIXME: CHECK IF "POSITION" IS THE RIGHT VAR TO CALL
+				TS_IN.P01D_YTRANS_Displacement.display_text := CONCAT('Load Cell 3:',CONCAT(STRFIVE,'N'));
+			
+			(*	IF () THEN
+					TS_IN.P01D_LoadCell3.display_state := 1;
+				ELSE
+					TS_IN.P01D_LoadCell3.display_state := 0;
+				END_IF
+			*)
+			
+		// Screen Navigaition Logic
+			IF(TS_IN.P01B_Calibrate.State=1) THEN
+				TS_IN.Active_Panel:=2;
+			END_IF
+			
+			IF(TS_IN.P01B_MotorSpeeds.State=1) THEN
+				TS_IN.Active_Panel:=3;
+			END_IF	
+		
+	ELSIF (TS_IN.Active_Panel = 2) THEN //Calibration Screen
+		//TS_IN.P00D_Active_Panel.display_text:='Login Screen';
+		TS_IN.CurrentVisu:='CALIBRATION_SCREEN';
+		
+		IF (INIT=0) THEN
+			RGP.PROG.HMI_OPS_LAST_SCREEN := 2;
+		END_IF
+	
+		//Visibility Logic
+			TS_IN.P12B_HOME_SCREEN.display_state := 1;
+			IF(TS_IN.Station_Active=0) THEN
+				TS_IN.P12B_Calibrate_Jack1.display_state := 0;
+				TS_IN.P12B_Calibrate_Jack1.display_state := 0;
+				TS_IN.P12B_Calibrate_Jack1.display_state := 0;
+				TS_IN.P12B_Calibrate_MonTool_RotZ.display_state := 0;
+				TS_IN.P12B_Calibrate_PosTool_RotZ.display_state := 0;
+				TS_IN.P12B_Calibrate_XTRANS.display_state := 0;
+				TS_IN.P12B_Calibrate_YTRANS.display_state := 0;			
+			ELSE
+				TS_IN.P12B_Calibrate_Jack1.display_state := 1;
+				TS_IN.P12B_Calibrate_Jack1.display_state := 1;
+				TS_IN.P12B_Calibrate_Jack1.display_state := 1;
+				TS_IN.P12B_Calibrate_MonTool_RotZ.display_state := 1;
+				TS_IN.P12B_Calibrate_PosTool_RotZ.display_state := 1;
+				TS_IN.P12B_Calibrate_XTRANS.display_state := 1;
+				TS_IN.P12B_Calibrate_YTRANS.display_state := 1;
+			END_IF
+			
+		// Screen Navigaition Logic
+			IF(TS_IN.P12B_HOME_SCREEN.State=1) THEN
+					TS_IN.Active_Panel:=1;
+			END_IF
+		
+
+	ELSIF (TS_IN.Active_Panel = 3) THEN //Motor Speed Screen
+		//TS_IN.P00D_Active_Panel.display_text:='Manip Positioning$NOps Screen';
+		TS_IN.CurrentVisu:='MOTOR_SPEED_SCREEN';
+	
+		IF (INIT=0) THEN
+			RGP.PROG.HMI_OPS_LAST_SCREEN:=3;
+		END_IF
+
+		//Misc Button Display State Control
+			TS_IN.P13B_HOME_SCREEN.display_state := 1;
+			IF( (TS_IN.Station_Active=0) OR (RGP.PROG.Alarm_Present=1) ) THEN
+				TS_IN.P13B_TRANSX_SPEED_Toggle.display_state := 0;
+				TS_IN.P13B_TRANSY_SPEED_Toggle.display_state := 0;
+				TS_IN.P13B_All_JACKS_SPEED_Toggle.display_state := 0;
+				TS_IN.P13B_POS_TOOL_ZROT_SPEED_Toggle.display_state := 0;
+				TS_IN.P13B_MON_TOOL_ZROT_SPEED_Toggle.display_state := 0;
+				
+			ELSE
+				TS_IN.P13B_TRANSX_SPEED_Toggle.display_state := 1;
+				TS_IN.P13B_TRANSY_SPEED_Toggle.display_state := 1;
+				TS_IN.P13B_All_JACKS_SPEED_Toggle.display_state := 1;
+				TS_IN.P13B_POS_TOOL_ZROT_SPEED_Toggle.display_state := 1;
+				TS_IN.P13B_MON_TOOL_ZROT_SPEED_Toggle.display_state := 1;
+			END_IF	
+				
+		//SCREEN NAVIGATION LOGIC
+			IF(TS_IN.P13B_HOME_SCREEN.State=1) THEN
+				TS_IN.Active_Panel:=1;
+			END_IF
+	  		
+	END_IF
+
+// MONITORS IF A SCREEN CHANGE OR IN SCREEN STATE CHANGE HAS OCCURED
+	IF (TS_IN.Active_Panel<>LAST_CYCLE_HMI_PANEL) THEN // OR RGP.PROG.P53_STATE<>LAST_P53_STATE) THEN
+		INIT:=0;
+	ELSE
+		INIT:=1;
+	END_IF
+	LAST_CYCLE_HMI_PANEL:=TS_IN.Active_Panel;
+	//LAST_P53_STATE:=RGP.PROG.P53_STATE;
+	]]></ST>
+    </Implementation>
+    <LineIds Name="Touchscreen_Instance">
+      <LineId Id="3" Count="3" />
+      <LineId Id="40488" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="14" Count="12" />
+      <LineId Id="40529" Count="0" />
+      <LineId Id="40496" Count="2" />
+      <LineId Id="40814" Count="1" />
+      <LineId Id="40499" Count="2" />
+      <LineId Id="40812" Count="1" />
+      <LineId Id="40495" Count="0" />
+      <LineId Id="40504" Count="0" />
+      <LineId Id="40625" Count="0" />
+      <LineId Id="40506" Count="4" />
+      <LineId Id="40816" Count="1" />
+      <LineId Id="40511" Count="1" />
+      <LineId Id="40624" Count="0" />
+      <LineId Id="40513" Count="2" />
+      <LineId Id="40737" Count="0" />
+      <LineId Id="40517" Count="0" />
+      <LineId Id="40526" Count="0" />
+      <LineId Id="40505" Count="0" />
+      <LineId Id="473" Count="77" />
+      <LineId Id="607" Count="3" />
+      <LineId Id="40593" Count="0" />
+      <LineId Id="40621" Count="1" />
+      <LineId Id="40620" Count="0" />
+      <LineId Id="40602" Count="0" />
+      <LineId Id="40601" Count="0" />
+      <LineId Id="40594" Count="6" />
+      <LineId Id="612" Count="0" />
+      <LineId Id="627" Count="0" />
+      <LineId Id="633" Count="0" />
+      <LineId Id="40627" Count="0" />
+      <LineId Id="634" Count="0" />
+      <LineId Id="640" Count="0" />
+      <LineId Id="40628" Count="0" />
+      <LineId Id="641" Count="0" />
+      <LineId Id="40586" Count="0" />
+      <LineId Id="40592" Count="0" />
+      <LineId Id="40631" Count="0" />
+      <LineId Id="40607" Count="2" />
+      <LineId Id="40632" Count="0" />
+      <LineId Id="40634" Count="2" />
+      <LineId Id="40633" Count="0" />
+      <LineId Id="40637" Count="0" />
+      <LineId Id="40639" Count="2" />
+      <LineId Id="40638" Count="0" />
+      <LineId Id="40642" Count="0" />
+      <LineId Id="40644" Count="2" />
+      <LineId Id="40643" Count="0" />
+      <LineId Id="40647" Count="0" />
+      <LineId Id="40649" Count="2" />
+      <LineId Id="40648" Count="0" />
+      <LineId Id="40818" Count="0" />
+      <LineId Id="40820" Count="2" />
+      <LineId Id="40819" Count="0" />
+      <LineId Id="40832" Count="0" />
+      <LineId Id="40829" Count="2" />
+      <LineId Id="40824" Count="0" />
+      <LineId Id="40828" Count="0" />
+      <LineId Id="40614" Count="4" />
+      <LineId Id="40605" Count="0" />
+      <LineId Id="40654" Count="0" />
+      <LineId Id="40604" Count="0" />
+      <LineId Id="40588" Count="0" />
+      <LineId Id="40587" Count="0" />
+      <LineId Id="647" Count="0" />
+      <LineId Id="40619" Count="0" />
+      <LineId Id="40590" Count="1" />
+      <LineId Id="40589" Count="0" />
+      <LineId Id="649" Count="0" />
+      <LineId Id="667" Count="0" />
+      <LineId Id="40578" Count="0" />
+      <LineId Id="669" Count="0" />
+      <LineId Id="40577" Count="0" />
+      <LineId Id="40573" Count="0" />
+      <LineId Id="40575" Count="0" />
+      <LineId Id="670" Count="0" />
+      <LineId Id="40576" Count="0" />
+      <LineId Id="671" Count="0" />
+      <LineId Id="40583" Count="0" />
+      <LineId Id="672" Count="0" />
+      <LineId Id="689" Count="0" />
+      <LineId Id="40565" Count="3" />
+      <LineId Id="40833" Count="0" />
+      <LineId Id="40836" Count="0" />
+      <LineId Id="690" Count="0" />
+      <LineId Id="40569" Count="3" />
+      <LineId Id="766" Count="0" />
+      <LineId Id="40837" Count="1" />
+      <LineId Id="767" Count="0" />
+      <LineId Id="40839" Count="0" />
+      <LineId Id="768" Count="0" />
+      <LineId Id="40581" Count="1" />
+      <LineId Id="40580" Count="0" />
+      <LineId Id="40584" Count="0" />
+      <LineId Id="853" Count="0" />
+      <LineId Id="5776" Count="3" />
+      <LineId Id="27222" Count="0" />
+      <LineId Id="27253" Count="0" />
+      <LineId Id="27249" Count="0" />
+      <LineId Id="35400" Count="0" />
+      <LineId Id="6422" Count="2" />
+      <LineId Id="21740" Count="0" />
+      <LineId Id="40539" Count="1" />
+      <LineId Id="40543" Count="0" />
+      <LineId Id="40545" Count="0" />
+      <LineId Id="40551" Count="0" />
+      <LineId Id="6472" Count="0" />
+      <LineId Id="40728" Count="2" />
+      <LineId Id="40733" Count="0" />
+      <LineId Id="21610" Count="0" />
+      <LineId Id="32563" Count="0" />
+      <LineId Id="35734" Count="0" />
+      <LineId Id="6956" Count="3" />
+      <LineId Id="6972" Count="0" />
+      <LineId Id="10961" Count="0" />
+      <LineId Id="25027" Count="0" />
+      <LineId Id="25026" Count="0" />
+      <LineId Id="25028" Count="0" />
+      <LineId Id="25032" Count="2" />
+      <LineId Id="25030" Count="1" />
+      <LineId Id="31183" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

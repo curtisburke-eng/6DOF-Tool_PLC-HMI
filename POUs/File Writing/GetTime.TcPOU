@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4018.5">
+  <POU Name="GetTime" Id="{2c1fcf88-885e-48fd-a6b3-d6d804247862}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM GetTime
+VAR
+	fbNT_GetTime			: NT_GetTime;
+	fbRefreshTimer			: TON;
+	dtFromSystemTime		: DT;
+(* 	bGetTime			: BOOL; *)
+END_VAR
+
+VAR_IN_OUT
+		stTimeStr			: timestruct;		
+		sDateTime			: STRING;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[fbRefreshTimer(IN:=NOT fbRefreshTimer.Q, PT:=T#1S);
+
+fbNT_GetTime(
+	NETID:= '',
+	START:= fbRefreshTimer.q,
+	TMOUT:= t#2s,
+	BUSY=> ,
+	ERR=> ,
+	ERRID=> , 
+	TIMESTR=> stTimeStr);
+dtFromSystemTime :=  SYSTEMTIME_TO_DT(stTimeStr);
+sDateTime := DT_TO_STRING(dtFromSystemTime);
+sDateTime := RIGHT(sDateTime,LEN(sDateTime)-3);
+
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

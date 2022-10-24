@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <POU Name="Alarm_Sounder_Control" Id="{eac40149-4991-43da-96d3-1bf18493fdc7}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION Alarm_Sounder_Control : INT
+
+VAR_INPUT
+
+END_VAR
+
+VAR_IN_OUT
+	RGP: System;	
+END_VAR
+
+VAR
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[RGP.PROG.HMI_Sounder_Control.Sounder_ON();
+RGP.PROG.HMI_Sounder_Control.Sounder_OFF();
+RGP.PROG.HMI_Sounder_Control.Beep_ON_TON();
+RGP.PROG.HMI_Sounder_Control.Beep_OFF_TON();
+IF (RGP.PROG.HMI_ACTIVE_LOC<>0) THEN
+
+	//Section for the Sounder for a new Alarm or Warning
+		RGP.PROG.HMI_Sounder_Control.Sounder_ON.PT:=T#1000MS;
+		RGP.PROG.HMI_Sounder_Control.Sounder_OFF.PT:=T#2000MS;
+		IF (RGP.PROG.Alarm_Warning_Change=1) THEN
+			IF(RGP.PROG.HMI_Sounder_Control.Sounder_ON.IN=0 AND RGP.PROG.HMI_Sounder_Control.Sounder_OFF.IN=0) THEN
+				RGP.PROG.HMI_Sounder_Control.Sounder_ON.IN:=1;	
+				RGP.PROG.HMI_Sounder_Control.Sounder_OFF.IN:=0;
+			ELSIF(RGP.PROG.HMI_Sounder_Control.Sounder_ON.Q=1) THEN
+				RGP.PROG.HMI_Sounder_Control.Sounder_ON.IN:=0;	
+				RGP.PROG.HMI_Sounder_Control.Sounder_OFF.IN:=1;
+			ELSIF(RGP.PROG.HMI_Sounder_Control.Sounder_OFF.Q=1) THEN
+				RGP.PROG.HMI_Sounder_Control.Sounder_ON.IN:=1;	
+				RGP.PROG.HMI_Sounder_Control.Sounder_OFF.IN:=0;
+			END_IF
+		ELSE
+			RGP.PROG.HMI_Sounder_Control.Sounder_ON.IN:=0;	
+			RGP.PROG.HMI_Sounder_Control.Sounder_OFF.IN:=0;
+		END_IF
+	
+		IF (RGP.PROG.HMI_Sounder_Control.Sounder_ON.IN) THEN
+			RGP.PROG.HMI_Sounder_Control.Sounder:=6.0;
+		ELSE
+			RGP.PROG.HMI_Sounder_Control.Sounder:=0.0;
+		END_IF
+	
+	//Section for a Beep sound	
+		RGP.PROG.HMI_Sounder_Control.Beep_ON_TON.PT:=T#250MS;
+		RGP.PROG.HMI_Sounder_Control.Beep_OFF_TON.PT:=T#2000MS;
+		IF (RGP.PROG.Alarm_Warning_Change=0 AND RGP.PROG.HMI_Sounder_Control.IN_Beep=1) THEN
+			//FRM.PROG.HMI_Sounder_Control.Beep_ON_TON.IN:=1;
+			IF(RGP.PROG.HMI_Sounder_Control.Beep_ON_TON.IN=0 AND RGP.PROG.HMI_Sounder_Control.Beep_OFF_TON.IN=0) THEN
+				RGP.PROG.HMI_Sounder_Control.Beep_ON_TON.IN:=1;	
+				RGP.PROG.HMI_Sounder_Control.Beep_OFF_TON.IN:=0;
+			ELSIF(RGP.PROG.HMI_Sounder_Control.Beep_ON_TON.Q=1) THEN
+				RGP.PROG.HMI_Sounder_Control.Beep_ON_TON.IN:=0;	
+				RGP.PROG.HMI_Sounder_Control.Beep_OFF_TON.IN:=1;
+			ELSIF(RGP.PROG.HMI_Sounder_Control.Beep_OFF_TON.Q=1) THEN
+				RGP.PROG.HMI_Sounder_Control.Beep_ON_TON.IN:=1;	
+				RGP.PROG.HMI_Sounder_Control.Beep_OFF_TON.IN:=0;
+			END_IF
+		ELSE
+			RGP.PROG.HMI_Sounder_Control.Beep_ON_TON.IN:=0;
+			RGP.PROG.HMI_Sounder_Control.Beep_OFF_TON.IN:=0;
+		END_IF
+		
+		IF (RGP.PROG.HMI_Sounder_Control.Beep_ON_TON.IN=1 AND RGP.PROG.HMI_Sounder_Control.Beep_ON_TON.Q=0 AND RGP.PROG.Alarm_Warning_Change<>1)THEN
+			RGP.PROG.HMI_Sounder_Control.Sounder:=5.0;
+		ELSIF ( RGP.PROG.Alarm_Warning_Change<>1) THEN
+			RGP.PROG.HMI_Sounder_Control.Sounder:=0.0;
+		END_IF
+	
+ELSE
+	RGP.PROG.HMI_Sounder_Control.Sounder:=0.0;
+END_IF
+
+RGP.ACTIVE_HMI.AUDIBLE_ALARM.Value:=RGP.PROG.HMI_Sounder_Control.Sounder;]]></ST>
+    </Implementation>
+    <LineIds Name="Alarm_Sounder_Control">
+      <LineId Id="3" Count="60" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

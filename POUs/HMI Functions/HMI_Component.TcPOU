@@ -1,0 +1,258 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="HMI_Component" Id="{d84bd541-94ef-4c60-b9b4-6ff9186af438}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION HMI_Component : INT
+
+VAR_INPUT
+	Act_Pnl: INT; //The Active HMI Screen Reference Number
+	Loc_Pnl: INT; //THe HMI Screen that the Component is located, 0=Universal component (located on all screens)
+END_VAR
+
+VAR
+
+END_VAR
+
+VAR_IN_OUT
+	COMP:TS_Component;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//Section that controls pushbutton state logic
+	IF ( (Loc_Pnl=0 OR ACT_Pnl=Loc_Pnl) AND COMP.invisible=0 AND COMP.display_state>0  AND COMP.B_TYPE<10 ) THEN
+		IF (COMP.B_TYPE = 0) THEN (*Momentary button type*) 
+			IF (COMP.Active = 0) THEN
+				COMP.State:=0;
+				COMP.run_status:=0;
+			ELSIF (COMP.Active = 1 AND COMP.run_status = 0) THEN
+				COMP.State:=1;
+				COMP.run_status:=1;
+			ELSIF (COMP.Active = 1 AND COMP.run_status = 1) THEN
+				COMP.State:=0;
+				COMP.Active:=0;
+			END_IF
+		ELSIF (COMP.B_TYPE = 1) THEN (*Maintained button type*)
+			IF (COMP.Active = 0) THEN
+				COMP.State:=0;
+				COMP.run_status:=0;
+			ELSIF (COMP.Active = 1) THEN
+				COMP.State:=1;
+				COMP.run_status:=1;
+			END_IF
+		ELSIF (COMP.B_TYPE = 2) THEN (*Toggle button type*)
+			IF (COMP.Active = 0) THEN
+				COMP.run_status:=0;
+			ELSIF (COMP.Active = 1 AND COMP.run_status = 0) THEN
+				IF (COMP.State=0) THEN
+					COMP.State:=1;
+				ELSE
+					COMP.State:=0;
+				END_IF
+				COMP.run_status:=1;
+			ELSE
+				COMP.Active:=0;
+			END_IF
+		ELSE
+			COMP.State:=0;
+			COMP.Active:=FALSE;
+		END_IF
+	ELSE
+		COMP.State:=FALSE;
+		COMP.Active:=FALSE;
+	END_IF
+	
+//Section that controls the displayed image for the HMI Component
+	IF ((Loc_Pnl=0 OR ACT_Pnl=Loc_Pnl) AND COMP.invisible=0) THEN
+		IF (COMP.size=0) THEN
+			IF (COMP.display_state=0) THEN
+				COMP.bitmap_ID:='ImagePool.PB_GY_125_100';
+			ELSIF (COMP.display_state=1) THEN
+				COMP.bitmap_ID:='ImagePool.PB_BU_125_100';
+			ELSIF (COMP.display_state=2) THEN
+				COMP.bitmap_ID:='ImagePool.PB_GN_125_100';
+			ELSIF (COMP.display_state=3) THEN
+				COMP.bitmap_ID:='ImagePool.PB_RD_125_100';
+			ELSE
+				COMP.bitmap_ID:='ImagePool.PB_GY_125_100';
+			END_IF
+		ELSIF (COMP.size=1) THEN
+			IF (COMP.display_state=0) THEN
+				COMP.bitmap_ID:='ImagePool.PB_GY_75_75';
+			ELSIF (COMP.display_state=1) THEN
+				COMP.bitmap_ID:='ImagePool.PB_BU_75_75';
+			ELSIF (COMP.display_state=2) THEN
+				COMP.bitmap_ID:='ImagePool.PB_GN_75_75';
+			ELSIF (COMP.display_state=3) THEN
+				COMP.bitmap_ID:='ImagePool.PB_RD_75_75';
+			ELSE
+				COMP.bitmap_ID:='ImagePool.PB_GY_75_75';
+			END_IF
+		ELSIF (COMP.size=2) THEN
+			IF (COMP.display_state=0) THEN
+				COMP.bitmap_ID:='ImagePool.PB_GY_160_75';
+			ELSIF (COMP.display_state=1) THEN
+				COMP.bitmap_ID:='ImagePool.PB_BU_160_75';
+			ELSIF (COMP.display_state=2) THEN
+				COMP.bitmap_ID:='ImagePool.PB_GN_160_75';
+			ELSIF (COMP.display_state=3) THEN
+				COMP.bitmap_ID:='ImagePool.PB_RD_160_75';
+			ELSE
+				COMP.bitmap_ID:='ImagePool.PB_GY_160_75';
+			END_IF
+		ELSIF (COMP.size=3) THEN
+			IF (COMP.display_state=0) THEN
+				COMP.bitmap_ID:='ImagePool.PB_GY_250_75';
+			ELSIF (COMP.display_state=1) THEN
+				COMP.bitmap_ID:='ImagePool.PB_BU_250_75';
+			ELSIF (COMP.display_state=2) THEN
+				COMP.bitmap_ID:='ImagePool.PB_GN_250_75';
+			ELSIF (COMP.display_state=3) THEN
+				COMP.bitmap_ID:='ImagePool.PB_RD_250_75';
+			ELSE
+				COMP.bitmap_ID:='ImagePool.PB_GY_250_75';
+			END_IF
+		ELSIF (COMP.size=10) THEN
+			IF (COMP.display_state=0) THEN
+				COMP.bitmap_ID:='ImagePool.IN_BU_300_50';
+			ELSIF (COMP.display_state=1) THEN
+				COMP.bitmap_ID:='ImagePool.IN_GN_300_50';
+			ELSIF (COMP.display_state=2) THEN
+				COMP.bitmap_ID:='ImagePool.IN_RD_300_50';
+			ELSIF (COMP.display_state=3) THEN
+				COMP.bitmap_ID:='ImagePool.IN_YL_300_50';
+			ELSIF (COMP.display_state=4) THEN
+				COMP.bitmap_ID:='ImagePool.IN_GY_300_50';
+			ELSIF (COMP.display_state=5) THEN
+				COMP.bitmap_ID:='ImagePool.IN_RR_300_50';
+			ELSIF (COMP.display_state=6) THEN
+				COMP.bitmap_ID:='ImagePool.IN_RY_300_50';
+			ELSIF (COMP.display_state=7) THEN
+				COMP.bitmap_ID:='ImagePool.IN_YR_300_50';
+			ELSIF (COMP.display_state=8) THEN
+				COMP.bitmap_ID:='ImagePool.IN_CL_61_40';
+			ELSE 
+				COMP.bitmap_ID:='ImagePool.IN_RR_300_50';
+			END_IF
+		ELSIF (COMP.size=11) THEN
+			IF (COMP.display_state=0) THEN
+				COMP.bitmap_ID:='ImagePool.IN_BU_61_40';
+			ELSIF (COMP.display_state=1) THEN
+				COMP.bitmap_ID:='ImagePool.IN_GN_61_40';
+			ELSIF (COMP.display_state=2) THEN
+				COMP.bitmap_ID:='ImagePool.IN_RD_61_40';
+			ELSIF (COMP.display_state=3) THEN
+				COMP.bitmap_ID:='ImagePool.IN_YL_61_40';
+			ELSIF (COMP.display_state=4) THEN
+				COMP.bitmap_ID:='ImagePool.IN_GY_61_40';
+			ELSIF (COMP.display_state=5) THEN
+				COMP.bitmap_ID:='ImagePool.IN_RR_61_40';
+			ELSIF (COMP.display_state=6) THEN
+				COMP.bitmap_ID:='ImagePool.IN_RY_61_40';
+			ELSIF (COMP.display_state=7) THEN
+				COMP.bitmap_ID:='ImagePool.IN_YR_61_40';
+			ELSIF (COMP.display_state=8) THEN
+				COMP.bitmap_ID:='ImagePool.IN_CL_61_40';
+			ELSE 
+				COMP.bitmap_ID:='ImagePool.IN_RR_61_40';
+			END_IF
+		END_IF
+	END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="HMI_Component">
+      <LineId Id="312" Count="0" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="159" Count="35" />
+      <LineId Id="314" Count="0" />
+      <LineId Id="317" Count="1" />
+      <LineId Id="311" Count="0" />
+      <LineId Id="253" Count="0" />
+      <LineId Id="305" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="323" Count="0" />
+      <LineId Id="326" Count="0" />
+      <LineId Id="328" Count="0" />
+      <LineId Id="338" Count="0" />
+      <LineId Id="340" Count="0" />
+      <LineId Id="350" Count="0" />
+      <LineId Id="352" Count="0" />
+      <LineId Id="362" Count="0" />
+      <LineId Id="364" Count="0" />
+      <LineId Id="374" Count="3" />
+      <LineId Id="429" Count="0" />
+      <LineId Id="382" Count="0" />
+      <LineId Id="390" Count="0" />
+      <LineId Id="394" Count="0" />
+      <LineId Id="402" Count="0" />
+      <LineId Id="406" Count="0" />
+      <LineId Id="414" Count="0" />
+      <LineId Id="418" Count="0" />
+      <LineId Id="426" Count="0" />
+      <LineId Id="433" Count="0" />
+      <LineId Id="428" Count="0" />
+      <LineId Id="434" Count="1" />
+      <LineId Id="441" Count="0" />
+      <LineId Id="447" Count="0" />
+      <LineId Id="453" Count="0" />
+      <LineId Id="459" Count="0" />
+      <LineId Id="465" Count="0" />
+      <LineId Id="471" Count="0" />
+      <LineId Id="477" Count="0" />
+      <LineId Id="483" Count="0" />
+      <LineId Id="486" Count="0" />
+      <LineId Id="485" Count="0" />
+      <LineId Id="487" Count="1" />
+      <LineId Id="496" Count="0" />
+      <LineId Id="500" Count="0" />
+      <LineId Id="508" Count="0" />
+      <LineId Id="512" Count="0" />
+      <LineId Id="520" Count="0" />
+      <LineId Id="524" Count="0" />
+      <LineId Id="532" Count="0" />
+      <LineId Id="536" Count="0" />
+      <LineId Id="539" Count="0" />
+      <LineId Id="538" Count="0" />
+      <LineId Id="540" Count="0" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="109" Count="0" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="113" Count="0" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="119" Count="0" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="133" Count="0" />
+      <LineId Id="135" Count="0" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="691" Count="1" />
+      <LineId Id="139" Count="2" />
+      <LineId Id="615" Count="0" />
+      <LineId Id="619" Count="0" />
+      <LineId Id="623" Count="0" />
+      <LineId Id="625" Count="0" />
+      <LineId Id="629" Count="0" />
+      <LineId Id="631" Count="0" />
+      <LineId Id="635" Count="0" />
+      <LineId Id="637" Count="0" />
+      <LineId Id="641" Count="0" />
+      <LineId Id="643" Count="0" />
+      <LineId Id="647" Count="0" />
+      <LineId Id="649" Count="0" />
+      <LineId Id="653" Count="0" />
+      <LineId Id="655" Count="0" />
+      <LineId Id="659" Count="0" />
+      <LineId Id="661" Count="0" />
+      <LineId Id="665" Count="0" />
+      <LineId Id="667" Count="0" />
+      <LineId Id="671" Count="0" />
+      <LineId Id="673" Count="0" />
+      <LineId Id="676" Count="0" />
+      <LineId Id="675" Count="0" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.0.38">
+  <POU Name="TOFEN_fun" Id="{f1c43c56-f2a8-4a84-affc-7fa95494b121}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION TOFEN_fun : INT
+
+VAR_IN_OUT
+	Timer: TOFEN;
+END_VAR
+
+VAR
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(**)
+IF (Timer.EN=0) THEN
+	Timer.IN:=0;
+	Timer.Latch:=0;
+	Timer.Q:=0;
+	Timer.Timer.IN:=0;
+ELSE
+	IF (Timer.IN=1) THEN
+		Timer.Latch := 1;
+		Timer.Timer.IN := 0;
+		Timer.Q := 1;
+	ELSIF (Timer.Timer.Q) THEN
+		Timer.Q := 0;
+		Timer.Timer.IN := 0;
+		Timer.Latch := 0;
+	ELSIF (Timer.IN=0 AND Timer.Latch=1) THEN
+		Timer.Q := 1;
+		Timer.Timer.IN := 1;
+	ELSE
+		Timer.Q := 0;
+		Timer.Timer.IN := 0;
+		Timer.Latch := 0;
+	END_IF
+END_IF
+Timer.Timer();]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

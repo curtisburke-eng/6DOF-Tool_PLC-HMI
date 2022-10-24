@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4018.5">
+  <POU Name="Axis_Pos" Id="{b3582aa0-1563-4b01-8d47-82ee415dec69}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION Axis_Pos : INT
+
+VAR_IN_OUT
+	P: Axis_Position; 
+END_VAR
+
+VAR_INPUT
+	DelT: INT; //Time between samples for velocity reading (in ms)
+	calculate: BOOL; //Bit to trigger velocity calculation
+END_VAR
+
+VAR
+	i: INT:=0;
+	sum: REAL:=0;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//Calculates the Position for an axis
+
+//Checks if a rollover has occured on the input
+	IF ( (P.Raw_Data > (P.Raw_Data_Max-(P.Raw_Data_Max-P.Raw_Data_Min)*0.25)) AND (P.Raw_Data_Old < (P.Raw_Data_Min+(P.Raw_Data_Max-P.Raw_Data_Min)*0.25)) ) THEN
+		P.Rollover_Count:=P.Rollover_Count-1;
+	ELSIF ( (P.Raw_Data_Old > (P.Raw_Data_Max-(P.Raw_Data_Max-P.Raw_Data_Min)*0.25)) AND (P.Raw_Data < (P.Raw_Data_Min+(P.Raw_Data_Max-P.Raw_Data_Min)*0.25)) ) THEN
+		P.Rollover_Count:=P.Rollover_Count+1;
+	END_IF
+
+//Calculates the new position
+	P.Position := (INT_TO_REAL(P.Rollover_Count)*(P.Raw_Data_Max-P.Raw_Data_Min)+P.Raw_Data)*P.Scale + P.Offset;
+	P.Position := P.Position_OLD*P.PFgain1 + P.Position*(1-P.PFgain1);
+	P.Position := (P.Position_OLD*P.PFgain2 + P.Position)/(1+P.PFgain2);
+	
+//Performs a Calibration of the Axis
+	IF ( P.Calibration_Enable ) THEN
+		P.Offset := P.Offset + (P.Calibration_Position-((INT_TO_REAL(P.Rollover_Count)*(P.Raw_Data_Max-P.Raw_Data_Min)+P.Raw_Data)*P.Scale + P.Offset) );
+	END_IF	
+	
+//Calculates the Velocity
+	IF (calculate) THEN
+		P.Velocity := (P.Position-P.Position_OLD)/(INT_TO_REAL(DelT)/1000);
+		P.Velocity := P.Velocity_OLD*P.VFgain1 + P.Velocity*(1-P.VFgain1);
+		P.Velocity := (P.Velocity_OLD*P.VFgain2 + P.Velocity)/(1+P.VFgain2);
+		P.Position_OLD := P.Position;
+		P.Velocity_OLD := P.Velocity;
+	END_IF
+
+	P.Raw_Data_OLD := P.Raw_Data;
+	]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

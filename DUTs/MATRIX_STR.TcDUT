@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4018.5">
+  <DUT Name="MATRIX_STR" Id="{ec1ceeab-f93b-4235-b11d-5c49df255681}">
+    <Declaration><![CDATA[TYPE MATRIX_STR :
+STRUCT
+
+	ROWS: INT:=0; //NUMBER OF ROWS FOR MATRICE
+	COLUMNS: INT:=0; //NUMBER OF COLUMNS FOR MATRICE
+	MATRICE: ARRAY[1..7,1..7] OF REAL; // MATRICE OF SIZE [ROWS,COLUMNS]
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>
